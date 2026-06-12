@@ -28,8 +28,12 @@ public class RegistroEstadoJugador : MonoBehaviour
 
     public void ImprimirEstadoJugador()
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // El registro por consola solo se ejecuta en el editor o en builds de
+        // desarrollo, para no generar ruido ni costo en builds de release.
         int vida = vidaNaveJugador != null ? vidaNaveJugador.PorcentajeVida : 0;
         int destruidos = GestorJuego.Instancia != null ? GestorJuego.Instancia.EnemigosDestruidos : 0;
         Debug.Log("- Vida Paredes: " + vida + "%\n- Enemigos destruidos: " + destruidos);
+#endif
     }
 }

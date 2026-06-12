@@ -27,6 +27,12 @@ public class EnemigoBase : MonoBehaviour
     protected Vector3 PosicionInicial { get; private set; }
     protected GameObject PrefabProyectilEnemigo => prefabProyectilEnemigo;
 
+    // Eventos para que el AnimadorEnemigo (u otros sistemas) reaccionen a las
+    // acciones del enemigo sin acoplarse a esta clase.
+    public event System.Action AlDisparar;
+    public event System.Action AlRecibirDaño;
+    public event System.Action AlMorir;
+
     protected virtual void Awake()
     {
         vidaActual = vidaMaxima;
@@ -61,6 +67,12 @@ public class EnemigoBase : MonoBehaviour
         }
 
         vidaActual -= cantidadDaño;
+        AlRecibirDaño?.Invoke();
+        if (GestorAudio.Instancia != null)
+        {
+            GestorAudio.Instancia.ReproducirImpactoEnemigo();
+        }
+
         if (vidaActual <= 0)
         {
             DestruirEnemigo(true);
@@ -97,6 +109,7 @@ public class EnemigoBase : MonoBehaviour
         proximoDisparo = Time.time + intervaloDisparo;
         Transform origen = puntoDisparo != null ? puntoDisparo : transform;
         DispararProyectiles(origen);
+        AlDisparar?.Invoke();
     }
 
     protected virtual void DispararProyectiles(Transform origen)
@@ -136,6 +149,7 @@ public class EnemigoBase : MonoBehaviour
         }
 
         destruido = true;
+        AlMorir?.Invoke();
 
         if (contarComoDestruido)
         {

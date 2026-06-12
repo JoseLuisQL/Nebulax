@@ -34,11 +34,12 @@ public static class NebulaxTilemapEditor
         CrearCarpetas();
 
         Material material = CrearMaterialTiles();
-        Tile tileFondo = CrearTile("TileFondo", new Color(0.08f, 0.10f, 0.20f), new Color(0.12f, 0.15f, 0.28f), material);
-        Tile tileMuro = CrearTile("TileMuro", new Color(0.30f, 0.35f, 0.55f), new Color(0.45f, 0.52f, 0.78f), material, borde: true);
-        Tile tileDeco = CrearTile("TileDecoracion", new Color(0.0f, 0.9f, 0.7f), new Color(0.0f, 1f, 0.9f), material);
+        // Colores claros y con buen contraste sobre el fondo oscuro de la cámara.
+        Tile tileFondo = CrearTile("TileFondo", new Color(0.18f, 0.22f, 0.42f), new Color(0.26f, 0.32f, 0.58f), material);
+        Tile tileMuro = CrearTile("TileMuro", new Color(0.55f, 0.62f, 0.85f), new Color(0.80f, 0.86f, 1.0f), material, borde: true);
+        Tile tileDeco = CrearTile("TileDecoracion", new Color(0.0f, 0.95f, 0.75f), new Color(0.4f, 1f, 0.95f), material);
 
-        CrearEscena(tileFondo, tileMuro, tileDeco);
+        CrearEscena(material, tileFondo, tileMuro, tileDeco);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -68,15 +69,29 @@ public static class NebulaxTilemapEditor
     private static Material CrearMaterialTiles()
     {
         string ruta = Raiz + "/Arte/Tiles/MaterialTiles.mat";
+
+        // IMPORTANTE: usamos un shader UNLIT para sprites. El shader
+        // "URP/2D/Sprite-Lit-Default" requiere una Light2D en la escena; sin
+        // ella, los tiles se renderizan NEGROS y la escena parece vacía.
+        // "Sprites/Default" es unlit y funciona también bajo URP.
+        Shader shader = Shader.Find("Sprites/Default")
+                     ?? Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default")
+                     ?? Shader.Find("Unlit/Transparent");
+
         Material existente = AssetDatabase.LoadAssetAtPath<Material>(ruta);
         if (existente != null)
         {
+            // Corrige el shader por si una ejecución previa creó el material con
+            // un shader Lit (que se veía negro).
+            if (existente.shader != shader)
+            {
+                existente.shader = shader;
+                EditorUtility.SetDirty(existente);
+                AssetDatabase.SaveAssets();
+            }
             return existente;
         }
 
-        // Shader compatible con sprites en URP (con fallback).
-        Shader shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Lit-Default")
-                     ?? Shader.Find("Sprites/Default");
         Material mat = new Material(shader);
         AssetDatabase.CreateAsset(mat, ruta);
         return mat;
@@ -120,7 +135,7 @@ public static class NebulaxTilemapEditor
         tex.Apply();
 
         File.WriteAllBytes(RutaFs(ruta), tex.EncodeToPNG());
-        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceUpdate);
+        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
         TextureImporter ti = AssetImporter.GetAtPath(ruta) as TextureImporter;
         if (ti != null)
         {
@@ -130,11 +145,20 @@ public static class NebulaxTilemapEditor
             ti.filterMode = FilterMode.Point;
             ti.SaveAndReimport();
         }
-        return AssetDatabase.LoadAssetAtPath<Sprite>(ruta);
+
+        // Recarga síncrona: garantiza que el Sprite exista antes de crear el Tile.
+        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport);
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(ruta);
+        if (sprite == null)
+        {
+            Debug.LogWarning("Nebulax: no se pudo cargar el sprite del tile en " + ruta +
+                             ". Vuelve a ejecutar el menu de construccion.");
+        }
+        return sprite;
     }
 
     // ── Escena con Grid + varios Tilemaps ──────────────────────────────────────
-    private static void CrearEscena(Tile tileFondo, Tile tileMuro, Tile tileDeco)
+    private static void CrearEscena(Material material, Tile tileFondo, Tile tileMuro, Tile tileDeco)
     {
         Scene escena = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
@@ -153,9 +177,9 @@ public static class NebulaxTilemapEditor
         GameObject grid = new GameObject("Grid");
         grid.AddComponent<Grid>();
 
-        Tilemap tmFondo = CrearTilemap(grid.transform, "Tilemap_Fondo", 0, false);
-        Tilemap tmMuros = CrearTilemap(grid.transform, "Tilemap_Muros", 1, true);
-        Tilemap tmDeco = CrearTilemap(grid.transform, "Tilemap_Decoracion", 2, false);
+        Tilemap tmFondo = CrearTilemap(grid.transform, "Tilemap_Fondo", 0, false, material);
+        Tilemap tmMuros = CrearTilemap(grid.transform, "Tilemap_Muros", 1, true, material);
+        Tilemap tmDeco = CrearTilemap(grid.transform, "Tilemap_Decoracion", 2, false, material);
 
         // 1) Fondo: rellena todo el nivel
         for (int x = 0; x < Ancho; x++)
@@ -196,13 +220,19 @@ public static class NebulaxTilemapEditor
         RegistrarEnBuild();
     }
 
-    private static Tilemap CrearTilemap(Transform padre, string nombre, int orden, bool conCollider)
+    private static Tilemap CrearTilemap(Transform padre, string nombre, int orden, bool conCollider, Material material)
     {
         GameObject go = new GameObject(nombre);
         go.transform.SetParent(padre, false);
         Tilemap tm = go.AddComponent<Tilemap>();
         TilemapRenderer tr = go.AddComponent<TilemapRenderer>();
         tr.sortingOrder = orden;
+        // Asignamos el material explícitamente para garantizar que los tiles se
+        // dibujen (con un shader unlit visible bajo URP sin luces 2D).
+        if (material != null)
+        {
+            tr.sharedMaterial = material;
+        }
 
         if (conCollider)
         {

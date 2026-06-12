@@ -1,0 +1,65 @@
+# ==========================================================================
+# .gitignore para proyectos Unity (Nebulax)
+# Ignora carpetas y archivos generados automáticamente por el editor.
+# ==========================================================================
+
+# Carpetas generadas por Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+
+# Recordings exportadas con el paquete Recorder
+/[Rr]ecordings/
+
+# Resultados de Asset Store Tools
+/[Aa]ssets/[Aa]ssetStoreTools*
+
+# Cache del paquete de Visual Scripting de Unity
+/[Aa]ssets/[Pp]lugins/[Ee]ditor/[Jj]etBrains*
+
+# Archivos de proyecto/solución autogenerados (Visual Studio / Rider)
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+[Tt]humbs.db
+
+# Logs de crash de Unity
+sysinfo.txt
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Archivos de entorno de IDEs
+.vs/
+.idea/
+.gradle/

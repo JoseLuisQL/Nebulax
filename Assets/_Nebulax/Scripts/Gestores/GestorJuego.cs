@@ -1,0 +1,247 @@
+using System.Collections;
+using UnityEngine;
+
+/// <summary>
+/// Coordina el estado global de Nebulax, el progreso de enemigos y la derrota del jugador.
+/// </summary>
+public class GestorJuego : MonoBehaviour
+{
+    public static GestorJuego Instancia { get; private set; }
+
+    [SerializeField] private VidaNaveJugador vidaJugador;
+    [SerializeField] private GestorUI gestorUI;
+    [SerializeField] private GestorAudio gestorAudio;
+    [SerializeField] private GeneradorEnemigos generadorEnemigos;
+    [SerializeField] private ControladorAreaBatalla controladorAreaBatalla;
+    [SerializeField] private GameObject prefabExplosion;
+
+    private int enemigosDestruidos;
+    private bool juegoTerminado;
+    private bool eventoTresEnemigosActivado;
+    private bool eventoDiezEnemigosActivado;
+
+    public int EnemigosDestruidos => enemigosDestruidos;
+    public bool JuegoTerminado => juegoTerminado;
+
+    private void Awake()
+    {
+        if (Instancia != null && Instancia != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instancia = this;
+        Time.timeScale = 1f;
+    }
+
+    private void Start()
+    {
+        ResolverReferencias();
+        ActualizarUI();
+    }
+
+    private void ResolverReferencias()
+    {
+        if (vidaJugador == null)
+        {
+            vidaJugador = FindFirstObjectByType<VidaNaveJugador>();
+        }
+
+        if (gestorUI == null)
+        {
+            gestorUI = FindFirstObjectByType<GestorUI>();
+        }
+
+        if (gestorAudio == null)
+        {
+            gestorAudio = FindFirstObjectByType<GestorAudio>();
+        }
+
+        if (generadorEnemigos == null)
+        {
+            generadorEnemigos = FindFirstObjectByType<GeneradorEnemigos>();
+        }
+
+        if (controladorAreaBatalla == null)
+        {
+            controladorAreaBatalla = FindFirstObjectByType<ControladorAreaBatalla>();
+        }
+    }
+
+    public void RegistrarEnemigoDestruido(Vector3 posicion)
+    {
+        if (juegoTerminado)
+        {
+            return;
+        }
+
+        enemigosDestruidos++;
+        CrearExplosion(posicion);
+
+        if (gestorAudio != null)
+        {
+            gestorAudio.ReproducirDestruccionEnemigo();
+        }
+
+        if (enemigosDestruidos >= 3 && !eventoTresEnemigosActivado)
+        {
+            eventoTresEnemigosActivado = true;
+            if (generadorEnemigos != null)
+            {
+                generadorEnemigos.HabilitarEnemigoTipoDosTemporal(5f);
+            }
+        }
+
+        if (enemigosDestruidos >= 10 && !eventoDiezEnemigosActivado)
+        {
+            eventoDiezEnemigosActivado = true;
+            StartCoroutine(ActivarAreaBatallaConPreparacion());
+        }
+
+        ActualizarUI();
+    }
+
+    public void ActualizarVidaJugador(int porcentajeVida)
+    {
+        if (gestorUI != null)
+        {
+            gestorUI.ActualizarVida(porcentajeVida);
+        }
+    }
+
+    public void RegistrarJugadorMuerto(Vector3 posicion)
+    {
+        if (juegoTerminado)
+        {
+            return;
+        }
+
+        juegoTerminado = true;
+        CrearExplosionGigante(posicion);
+
+        if (gestorAudio != null)
+        {
+            gestorAudio.ReproducirExplosionJugador();
+            gestorAudio.ReproducirGameOver();
+            gestorAudio.ReproducirAlertaEnemigoIII(false);
+        }
+
+        if (generadorEnemigos != null)
+        {
+            generadorEnemigos.DetenerGeneracion();
+        }
+
+        if (gestorUI != null)
+        {
+            gestorUI.MostrarGameOver(true);
+        }
+
+        Time.timeScale = 0f;
+    }
+
+    public void ConfigurarAlertaEnemigoIII(bool visible)
+    {
+        if (gestorUI != null)
+        {
+            gestorUI.MostrarAlertaEnemigoIII(visible);
+        }
+
+        if (gestorAudio != null)
+        {
+            gestorAudio.ReproducirAlertaEnemigoIII(visible);
+        }
+    }
+
+    /// <summary>
+    /// Secuencia de preparación antes del área de batalla:
+    /// 1. Detiene la generación de enemigos.
+    /// 2. Destruye TODOS los enemigos activos en pantalla.
+    /// 3. Espera 3 segundos (ventana libre).
+    /// 4. Lanza la estructura del área de batalla.
+    /// </summary>
+    private System.Collections.IEnumerator ActivarAreaBatallaConPreparacion()
+    {
+        // 1) Parar generación inmediatamente
+        if (generadorEnemigos != null)
+        {
+            generadorEnemigos.DetenerGeneracion();
+        }
+
+        // 2) Destruir todos los enemigos vivos en escena
+        EnemigoBase[] enemigosActivos = FindObjectsByType<EnemigoBase>(FindObjectsSortMode.None);
+        foreach (EnemigoBase e in enemigosActivos)
+        {
+            if (e != null) Destroy(e.gameObject);
+        }
+
+        // También destruir proyectiles enemigos sueltos
+        ProyectilEnemigo[] proyectilesActivos = FindObjectsByType<ProyectilEnemigo>(FindObjectsSortMode.None);
+        foreach (ProyectilEnemigo p in proyectilesActivos)
+        {
+            if (p != null) Destroy(p.gameObject);
+        }
+
+        // 3) Ventana de 3 segundos: Generar enemigos TIPO III
+        if (generadorEnemigos != null)
+        {
+            ConfigurarAlertaEnemigoIII(true);
+            generadorEnemigos.HabilitarEnemigoTipoTresTemporal(3f);
+        }
+
+        yield return new WaitForSeconds(3f);
+
+        // 4) Aparece la estructura del área de batalla
+        if (controladorAreaBatalla != null)
+        {
+            controladorAreaBatalla.AparecerAreaBatalla();
+        }
+    }
+
+    private void ActualizarUI()
+    {
+        if (gestorUI != null)
+        {
+            gestorUI.ActualizarEnemigosDestruidos(enemigosDestruidos);
+            if (vidaJugador != null)
+            {
+                gestorUI.ActualizarVida(vidaJugador.PorcentajeVida);
+            }
+        }
+    }
+
+    private void CrearExplosion(Vector3 posicion)
+    {
+        if (prefabExplosion != null)
+        {
+            GameObject inst = Instantiate(prefabExplosion, posicion, Quaternion.identity);
+            ParticleSystem[] pss = inst.GetComponentsInChildren<ParticleSystem>();
+            foreach (var ps in pss)
+            {
+                var main = ps.main;
+                main.useUnscaledTime = true;
+            }
+        }
+    }
+
+    private void CrearExplosionGigante(Vector3 posicion)
+    {
+        if (prefabExplosion != null)
+        {
+            GameObject inst = Instantiate(prefabExplosion, posicion, Quaternion.identity);
+            inst.transform.localScale = new Vector3(3f, 3f, 3f);
+            ParticleSystem[] pss = inst.GetComponentsInChildren<ParticleSystem>();
+            foreach (var ps in pss)
+            {
+                var main = ps.main;
+                main.useUnscaledTime = true;
+            }
+        }
+    }
+
+    public void ReiniciarPartida()
+    {
+        Time.timeScale = 1f;
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+}

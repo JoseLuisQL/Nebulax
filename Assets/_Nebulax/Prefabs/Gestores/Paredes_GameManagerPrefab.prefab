@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &51711157740168994
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4671038127002404076}
+  - component: {fileID: 1871906331583484686}
+  - component: {fileID: 6643116820758579011}
+  - component: {fileID: 8451713921390884428}
+  m_Layer: 0
+  m_Name: Paredes_GameManagerPrefab
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4671038127002404076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51711157740168994}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1871906331583484686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51711157740168994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a7e73ccbc95fe4aaaca7adefb1e1ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GestorJuego
+  vidaJugador: {fileID: 0}
+  gestorUI: {fileID: 0}
+  gestorAudio: {fileID: 0}
+  generadorEnemigos: {fileID: 6643116820758579011}
+  controladorAreaBatalla: {fileID: 8451713921390884428}
+  prefabExplosion: {fileID: 6326324159106928206, guid: 68c07bc0465dd5247b5f9badf4875c96, type: 3}
+--- !u!114 &6643116820758579011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51711157740168994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3376dc2fc7791b742b583db46fc4fdb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GeneradorEnemigos
+  prefabEnemigoTipoUno: {fileID: 7980141837872904154, guid: b61ddcd577d965540abcf3c7fb18f4da, type: 3}
+  prefabEnemigoTipoDos: {fileID: 3759643426368112999, guid: 0c79bd551eb498c41ac41002df80de41, type: 3}
+  prefabEnemigoTipoTres: {fileID: 6326653804764552019, guid: c5cd730c50e0cb6499ae4d76658e42aa, type: 3}
+  intervaloEnemigoTipoUno: 2.2
+  intervaloEnemigoTipoDos: 1.6
+  margenHorizontal: 0.8
+  posicionYSuperior: 6.2
+--- !u!114 &8451713921390884428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51711157740168994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce857267f41411b4d820997b8fdb5863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControladorAreaBatalla
+  prefabAreaBatalla: {fileID: 112476635837411818, guid: 02b4ada3198f8ac41b7a387b0045ff76, type: 3}
+  puntoAparicion: {fileID: 0}
+  aparecioArea: 0

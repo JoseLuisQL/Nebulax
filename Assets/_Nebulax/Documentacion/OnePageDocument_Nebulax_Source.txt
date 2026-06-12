@@ -1,0 +1,16 @@
+﻿NEBULAX
+One Page Document
+
+Estudiante: Paredes Gutierrez Meayck Rudloff - 71869757
+Universidad Continental
+Desarrollo de Videojuegos
+
+Resumen: Nebulax es un shooter espacial vertical 2D donde una nave atraviesa una zona de guerra cósmica, destruye enemigos, recoge poderes y supera un área de batalla con abertura central segura.
+
+Frase de impacto: Sobrevive a la nebulosa, domina el disparo y cruza la estructura antes de ser destruido.
+
+Mecánicas principales: movimiento WASD/flechas, disparo con Espacio, doble disparo con X tras recoger poder, misil con Control izquierdo, poderes de doble/triple disparo, tres enemigos y área especial después de 10 bajas.
+
+Enemigos: Tipo I vertical básico, Tipo II zigzag temporal, Tipo III élite en pares con alerta sonora y visual.
+
+Tecnología: Unity 2D, URP, MonoBehaviour, GameObjects, Prefabs, Rigidbody2D, Collider2D, SpriteRenderer, AudioSource, Canvas y UI clásica.

@@ -1,0 +1,39 @@
+using UnityEngine;
+
+/// <summary>
+/// Proyectil enemigo: baja por la pantalla y daña al jugador al impactar.
+/// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
+public class ProyectilEnemigo : MonoBehaviour
+{
+    [SerializeField] private float velocidad = 2.8f;
+    [SerializeField] private int daño = 15;
+    [SerializeField] private float limiteInferior = -7f;
+
+    private void Update()
+    {
+        transform.Translate(Vector3.down * velocidad * Time.deltaTime, Space.World);
+
+        if (transform.position.y < limiteInferior)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D otro)
+    {
+        if (!otro.CompareTag("Player"))
+        {
+            return;
+        }
+
+        VidaNaveJugador vida = otro.GetComponent<VidaNaveJugador>();
+        if (vida != null)
+        {
+            vida.RecibirDaño(daño);
+        }
+
+        Destroy(gameObject);
+    }
+}

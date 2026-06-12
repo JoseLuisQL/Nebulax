@@ -28,7 +28,12 @@ public class GestorProgresion : MonoBehaviour
     [Header("Incremento de dificultad (enemigos) por nivel")]
     [SerializeField] private float factorDificultadEnemigos = 1.08f;
 
+    [Header("Jefe final")]
+    [Tooltip("Nivel en el que se invoca al enemigo jefe (0 = desactivado).")]
+    [SerializeField] private int nivelInvocaJefe = 4;
+
     private int nivelActual = 1;
+    private bool jefeInvocado;
 
     public int NivelActual => nivelActual;
     public int ItemsPorNivel => itemsPorNivel;
@@ -100,6 +105,13 @@ public class GestorProgresion : MonoBehaviour
         if (ui != null)
         {
             ui.ActualizarNivel(nivelActual);
+        }
+
+        // 4) Invocar al jefe al alcanzar el nivel objetivo (una sola vez).
+        if (!jefeInvocado && nivelInvocaJefe > 0 && nivelActual >= nivelInvocaJefe && GestorJuego.Instancia != null)
+        {
+            jefeInvocado = true;
+            GestorJuego.Instancia.InvocarJefe();
         }
     }
 }

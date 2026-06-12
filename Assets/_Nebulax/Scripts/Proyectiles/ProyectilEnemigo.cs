@@ -13,7 +13,10 @@ public class ProyectilEnemigo : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate(Vector3.down * velocidad * Time.deltaTime, Space.World);
+        // Se mueve según su orientación local: con rotación identity (enemigos
+        // normales) equivale a bajar recto; rotado (abanico del jefe) sigue su
+        // ángulo de disparo.
+        transform.Translate(Vector3.down * velocidad * Time.deltaTime, Space.Self);
 
         if (transform.position.y < limiteInferior)
         {

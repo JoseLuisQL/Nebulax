@@ -33,6 +33,7 @@ public class GestorUI : MonoBehaviour
 
     [Header("Otros elementos de UI")]
     [SerializeField] private GameObject imagenGameOver;
+    [SerializeField] private GameObject imagenVictoria;
     [SerializeField] private Image imagenRellenoVida;
     [SerializeField] private GameObject hudJuego;
 
@@ -133,6 +134,19 @@ public class GestorUI : MonoBehaviour
                 AsignarTexto(textoGameOverEnemigosTMP, textoGameOverEnemigos,
                     "ENEMIGOS ELIMINADOS:\n<color=#ffcc00>" + ultimoConteoEnemigos + "</color>");
             }
+        }
+
+        if (hudJuego != null)
+        {
+            hudJuego.SetActive(!visible);
+        }
+    }
+
+    public void MostrarVictoria(bool visible)
+    {
+        if (imagenVictoria != null)
+        {
+            imagenVictoria.SetActive(visible);
         }
 
         if (hudJuego != null)

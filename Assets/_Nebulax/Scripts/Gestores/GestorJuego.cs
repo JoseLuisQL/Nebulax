@@ -14,6 +14,8 @@ public class GestorJuego : MonoBehaviour
     [SerializeField] private GeneradorEnemigos generadorEnemigos;
     [SerializeField] private ControladorAreaBatalla controladorAreaBatalla;
     [SerializeField] private GameObject prefabExplosion;
+    [SerializeField] private GameObject prefabJefe;
+    [SerializeField] private Transform puntoAparicionJefe;
 
     private int enemigosDestruidos;
     private int itemsRecolectados;
@@ -174,6 +176,61 @@ public class GestorJuego : MonoBehaviour
             gestorUI.MostrarGameOver(true);
         }
 
+        Time.timeScale = 0f;
+    }
+
+    private bool jefeInvocado;
+
+    /// <summary>
+    /// Invoca al enemigo jefe (una sola vez). Detiene la generación normal y lo
+    /// instancia en su punto de aparición.
+    /// </summary>
+    public void InvocarJefe()
+    {
+        if (juegoTerminado || jefeInvocado || prefabJefe == null)
+        {
+            return;
+        }
+
+        jefeInvocado = true;
+
+        if (generadorEnemigos != null)
+        {
+            generadorEnemigos.DetenerGeneracion();
+        }
+
+        Vector3 posicion = puntoAparicionJefe != null ? puntoAparicionJefe.position : new Vector3(0f, 6.5f, 0f);
+        Instantiate(prefabJefe, posicion, Quaternion.identity);
+        ConfigurarAlertaEnemigoIII(true);
+        Debug.Log("[GameManager] ¡Enemigo JEFE invocado!");
+    }
+
+    /// <summary>
+    /// Registra la victoria del jugador (derrota del jefe): muestra el mensaje,
+    /// detiene la generación y congela el tiempo.
+    /// </summary>
+    public void RegistrarVictoria(Vector3 posicion)
+    {
+        if (juegoTerminado)
+        {
+            return;
+        }
+
+        juegoTerminado = true;
+        CrearExplosionGigante(posicion);
+        ConfigurarAlertaEnemigoIII(false);
+
+        if (generadorEnemigos != null)
+        {
+            generadorEnemigos.DetenerGeneracion();
+        }
+
+        if (gestorUI != null)
+        {
+            gestorUI.MostrarVictoria(true);
+        }
+
+        Debug.Log("[GameManager] ¡VICTORIA! El jefe ha sido derrotado.");
         Time.timeScale = 0f;
     }
 

@@ -16,6 +16,8 @@ public class GestorAudio : MonoBehaviour
     [SerializeField] private AudioClip sfxMisilJugador;
     [SerializeField] private AudioClip sfxGameOver;
     [SerializeField] private AudioClip sfxPoder;
+    [SerializeField] private AudioClip sfxItemRecolectado;
+    [SerializeField] private AudioClip sfxImpactoEnemigo;
     [SerializeField] private float volumenEfectos = 0.75f;
     [SerializeField] private float volumenAlerta = 0.35f;
 
@@ -72,6 +74,18 @@ public class GestorAudio : MonoBehaviour
     public void ReproducirPoder()
     {
         ReproducirClip(sfxPoder);
+    }
+
+    public void ReproducirItemRecolectado()
+    {
+        // Si no se asignó un SFX específico para items, reutiliza el de poder.
+        ReproducirClip(sfxItemRecolectado != null ? sfxItemRecolectado : sfxPoder);
+    }
+
+    public void ReproducirImpactoEnemigo()
+    {
+        // SFX corto al impactar a un enemigo; reutiliza el de disparo si falta.
+        ReproducirClip(sfxImpactoEnemigo != null ? sfxImpactoEnemigo : sfxDisparoJugador);
     }
 
     public void ReproducirGameOver()

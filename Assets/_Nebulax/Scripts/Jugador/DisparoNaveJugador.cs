@@ -56,6 +56,23 @@ public class DisparoNaveJugador : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Mejora la cadencia de disparo reduciendo los intervalos (mejora de
+    /// habilidad por subir de nivel). El factor es multiplicativo y menor que 1
+    /// (0.92 = 8% más rápido). Se acota para no llegar a cadencias absurdas.
+    /// </summary>
+    public void MejorarCadencia(float factor)
+    {
+        if (factor <= 0f || factor >= 1f)
+        {
+            return;
+        }
+
+        intervaloDisparo = Mathf.Max(0.05f, intervaloDisparo * factor);
+        intervaloDobleDisparo = Mathf.Max(0.06f, intervaloDobleDisparo * factor);
+        intervaloMisil = Mathf.Max(0.25f, intervaloMisil * factor);
+    }
+
     public void ActivarDobleDisparo()
     {
         if (rutinaDoble != null)

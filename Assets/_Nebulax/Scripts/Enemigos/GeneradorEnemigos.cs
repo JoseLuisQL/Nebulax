@@ -60,6 +60,26 @@ public class GeneradorEnemigos : MonoBehaviour
         enemigoTipoTresActivo = false;
     }
 
+    /// <summary>
+    /// Aumenta la dificultad reduciendo el intervalo de aparición de enemigos
+    /// (aparecen con más frecuencia) al subir de nivel. El factor es
+    /// multiplicativo y menor que 1 (0.92 = aparecen 8% más seguido). Se acota
+    /// con un mínimo razonable para no saturar la pantalla.
+    /// </summary>
+    public void AumentarDificultad(float factor)
+    {
+        // factor > 1 acelera la cadencia de aparición (más difícil). Convertimos
+        // a reductor del intervalo para que un valor como 1.08 acorte el tiempo.
+        if (factor <= 0f)
+        {
+            return;
+        }
+
+        float reductor = factor >= 1f ? 1f / factor : factor;
+        intervaloEnemigoTipoUno = Mathf.Max(0.6f, intervaloEnemigoTipoUno * reductor);
+        intervaloEnemigoTipoDos = Mathf.Max(0.5f, intervaloEnemigoTipoDos * reductor);
+    }
+
     private IEnumerator GenerarTipoUnoContinuamente()
     {
         yield return new WaitForSeconds(0.5f);

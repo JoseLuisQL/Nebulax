@@ -20,12 +20,16 @@ public class GestorUI : MonoBehaviour
     [SerializeField] private Text textoEnemigosDestruidos;
     [SerializeField] private Text textoAlertaEnemigoIII;
     [SerializeField] private Text textoGameOverEnemigos;
+    [SerializeField] private Text textoItems;
+    [SerializeField] private Text textoNivel;
 
     [Header("Texto TextMeshPro (opcional, tiene prioridad si se asigna)")]
     [SerializeField] private TMP_Text textoVidaJugadorTMP;
     [SerializeField] private TMP_Text textoEnemigosDestruidosTMP;
     [SerializeField] private TMP_Text textoAlertaEnemigoIIITMP;
     [SerializeField] private TMP_Text textoGameOverEnemigosTMP;
+    [SerializeField] private TMP_Text textoItemsTMP;
+    [SerializeField] private TMP_Text textoNivelTMP;
 
     [Header("Otros elementos de UI")]
     [SerializeField] private GameObject imagenGameOver;
@@ -75,6 +79,16 @@ public class GestorUI : MonoBehaviour
         ultimoConteoEnemigos = Mathf.Max(0, cantidad);
         AsignarTexto(textoEnemigosDestruidosTMP, textoEnemigosDestruidos,
             ultimoConteoEnemigos.ToString());
+    }
+
+    public void ActualizarItems(int cantidad)
+    {
+        AsignarTexto(textoItemsTMP, textoItems, "Items: " + Mathf.Max(0, cantidad));
+    }
+
+    public void ActualizarNivel(int nivel)
+    {
+        AsignarTexto(textoNivelTMP, textoNivel, "Nivel " + Mathf.Max(1, nivel));
     }
 
     public void MostrarAlertaEnemigoIII(bool visible)

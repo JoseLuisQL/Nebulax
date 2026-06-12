@@ -16,11 +16,13 @@ public class GestorJuego : MonoBehaviour
     [SerializeField] private GameObject prefabExplosion;
 
     private int enemigosDestruidos;
+    private int itemsRecolectados;
     private bool juegoTerminado;
     private bool eventoTresEnemigosActivado;
     private bool eventoDiezEnemigosActivado;
 
     public int EnemigosDestruidos => enemigosDestruidos;
+    public int ItemsRecolectados => itemsRecolectados;
     public bool JuegoTerminado => juegoTerminado;
 
     /// <summary>
@@ -107,6 +109,34 @@ public class GestorJuego : MonoBehaviour
         }
 
         ActualizarUI();
+    }
+
+    /// <summary>
+    /// Registra la recolección de un item coleccionable: lo refleja en el
+    /// Debug.Log (requisito de la mecánica), actualiza el HUD y alimenta la
+    /// progresión del jugador (subida de nivel / dificultad).
+    /// </summary>
+    public void RegistrarItemRecolectado(Coleccionable.TipoColeccionable tipo)
+    {
+        if (juegoTerminado)
+        {
+            return;
+        }
+
+        itemsRecolectados++;
+
+        int meta = GestorProgresion.Instancia != null ? GestorProgresion.Instancia.ItemsPorNivel : 5;
+        Debug.Log("[GameManager] Item recolectado: " + tipo + " (" + itemsRecolectados + ") | progreso al siguiente nivel: " + (itemsRecolectados % meta) + "/" + meta);
+
+        if (GestorProgresion.Instancia != null)
+        {
+            GestorProgresion.Instancia.EvaluarProgresion(itemsRecolectados);
+        }
+
+        if (gestorUI != null)
+        {
+            gestorUI.ActualizarItems(itemsRecolectados);
+        }
     }
 
     public void ActualizarVidaJugador(int porcentajeVida)

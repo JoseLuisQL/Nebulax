@@ -74,4 +74,16 @@ public class ControladorNaveJugador : MonoBehaviour
 
         cuerpoRigido.MovePosition(nuevaPosicion);
     }
+
+    /// <summary>
+    /// Incrementa la velocidad de movimiento de la nave (mejora de habilidad por
+    /// subir de nivel). El factor es multiplicativo (1.10 = +10%).
+    /// </summary>
+    public void AumentarVelocidad(float factor)
+    {
+        if (factor > 0f)
+        {
+            velocidadMovimiento *= factor;
+        }
+    }
 }

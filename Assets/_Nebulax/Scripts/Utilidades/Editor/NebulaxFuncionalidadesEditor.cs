@@ -26,10 +26,11 @@ public static class NebulaxFuncionalidadesEditor
         GameObject prefabJefe = CrearPrefabJefe();
         CrearAnimatorControllerEnemigos();
         AgregarAnimadorAEnemigosExistentes();
+        IntegrarEnEscenaPrincipal(prefabCristal, prefabNucleo, prefabJefe);
 
         Debug.Log("Nebulax: funcionalidades construidas. Items: " + (prefabCristal != null && prefabNucleo != null) +
                   ", Jefe: " + (prefabJefe != null) +
-                  ". Recuerda cablear prefabJefe/puntoAparicionJefe en el GestorJuego y soltar items desde enemigos o un generador.");
+                  ". Se integraron en EscenaPrincipal: GeneradorItems, GestorProgresion y el cableado del jefe.");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -198,6 +199,61 @@ public static class NebulaxFuncionalidadesEditor
                 PrefabUtility.SaveAsPrefabAsset(instancia, ruta);
             }
             Object.DestroyImmediate(instancia);
+        }
+    }
+
+    // ── Integración en la escena principal ─────────────────────────────────────
+    private static void IntegrarEnEscenaPrincipal(GameObject prefabCristal, GameObject prefabNucleo, GameObject prefabJefe)
+    {
+        string rutaEscena = Raiz + "/Escenas/EscenaPrincipal.unity";
+        var escena = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(rutaEscena, UnityEditor.SceneManagement.OpenSceneMode.Single);
+
+        // 1) GestorProgresion (singleton) — se añade al GestorJuego si existe.
+        GestorJuego gestorJuego = Object.FindFirstObjectByType<GestorJuego>();
+        if (gestorJuego != null)
+        {
+            if (gestorJuego.GetComponent<GestorProgresion>() == null)
+            {
+                gestorJuego.gameObject.AddComponent<GestorProgresion>();
+            }
+
+            // Cablear el prefab del jefe y un punto de aparición.
+            SetObject(gestorJuego, "prefabJefe", prefabJefe);
+            GameObject puntoJefe = GameObject.Find("PuntoAparicionJefe");
+            if (puntoJefe == null)
+            {
+                puntoJefe = new GameObject("PuntoAparicionJefe");
+                puntoJefe.transform.position = new Vector3(0f, 6.5f, 0f);
+            }
+            SetObject(gestorJuego, "puntoAparicionJefe", puntoJefe.transform);
+        }
+
+        // 2) GeneradorItems en escena con los prefabs de coleccionable.
+        GameObject generadorItems = GameObject.Find("GeneradorItems");
+        if (generadorItems == null)
+        {
+            generadorItems = new GameObject("GeneradorItems");
+            generadorItems.AddComponent<GeneradorItems>();
+        }
+        GeneradorItems gi = generadorItems.GetComponent<GeneradorItems>();
+        SetArray(gi, "prefabsColeccionables", new Object[] { prefabCristal, prefabNucleo });
+
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(escena);
+        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(escena);
+    }
+
+    private static void SetArray(Object objeto, string propiedad, Object[] valores)
+    {
+        SerializedObject so = new SerializedObject(objeto);
+        SerializedProperty sp = so.FindProperty(propiedad);
+        if (sp != null)
+        {
+            sp.arraySize = valores.Length;
+            for (int i = 0; i < valores.Length; i++)
+            {
+                sp.GetArrayElementAtIndex(i).objectReferenceValue = valores[i];
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
     }
 

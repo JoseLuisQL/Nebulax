@@ -56,6 +56,37 @@ Proyecto académico — Universidad Continental, Desarrollo de Videojuegos.
   se limpia la pantalla, aparece una oleada de Tipo III (3 s) y finalmente la
   **estructura del área de batalla**, que hay que cruzar por su abertura central.
 
+## Funcionalidades avanzadas
+
+- **Animaciones de enemigos ligadas a eventos + audio** — cada enemigo reacciona
+  a sus eventos (idle, squash al disparar, flash al recibir daño) mediante
+  `AnimadorEnemigo`, complementado con SFX de disparo, impacto, destrucción y
+  música de fondo.
+- **Items coleccionables** — `Coleccionable` (Prefab) cae por la pantalla; al
+  recogerlo, el `GestorJuego` lo registra en `Debug.Log` y alimenta la
+  progresión. Los genera `GeneradorItems`.
+- **Progresión: habilidades y dificultad** — cada **5 items** sube 1 nivel
+  (`GestorProgresion`): la nave gana **velocidad** y **cadencia**, y los enemigos
+  se vuelven más rápidos/frecuentes.
+- **Enemigo jefe animado** — `EnemigoJefe` con vida alta, **fases** (cambian el
+  patrón de disparo en abanico y la velocidad), entrada + vaivén, flotación y
+  victoria al ser derrotado.
+- **2ª escena con Tilemaps** — `EscenaNivel2` con un `Grid` y **tres Tilemaps**
+  (fondo, muros con collider, decoración), tiles, material y texturas generados
+  por código.
+
+### Construir los assets nuevos (en Unity)
+
+Los assets de Unity se generan desde el menú **Nebulax/**:
+
+1. `Nebulax/Funcionalidades/Construir items, jefe y animadores` — crea prefabs de
+   coleccionables y del jefe, los AnimatorControllers, añade `AnimadorEnemigo` a
+   los enemigos e integra `GeneradorItems`, `GestorProgresion` y el cableado del
+   jefe en `EscenaPrincipal`.
+2. `Nebulax/Funcionalidades/Construir 2da escena (Tilemaps)` — crea tiles,
+   material/texturas y `EscenaNivel2` con sus Tilemaps, y la registra en Build
+   Settings.
+
 ## Estructura del proyecto
 
 ```

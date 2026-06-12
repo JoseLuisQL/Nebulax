@@ -4,6 +4,24 @@
 > describe **qué** cambiar, **por qué**, **cómo hacerlo sin romper Unity** y en
 > **qué orden**. Pensado para Unity 6 (6000.4.9f1) + URP + Input System.
 
+## Estado de ejecución
+
+| Fase | Descripción | Estado |
+|------|-------------|--------|
+| 0 | Red de seguridad (`.gitignore`, limpieza de generados) | ✅ Hecho |
+| 1 | Limpieza (prefabs huérfanos, log de depuración) | ✅ Hecho |
+| 2 | Corrección de fragilidad lógica (flags, cacheo, daño misil) | ✅ Hecho |
+| 3 | Object pooling de proyectiles | ✅ Hecho |
+| 4 | Soporte TextMeshPro sin romper UI legacy | ✅ Hecho |
+| 5 | Asmdef + pruebas unitarias EditMode | ✅ Hecho |
+| 6 | Pulido (README, tags, límites) | ✅ Hecho |
+
+> **Validación pendiente en Unity (no automatizable sin el Editor):** abrir
+> `EscenaPrincipal`, importar TMP Essentials si se desea usar TMP, compilar sin
+> errores, correr el Test Runner (EditMode) y comprobar que no hay referencias
+> `Missing`. Mejoras futuras sugeridas: poolear también explosiones y enemigos;
+> migrar visualmente la UI a TMP arrastrando los componentes a los campos TMP.
+
 ## Regla de oro (no romper el cableado de Unity)
 
 Las escenas (`EscenaPrincipal.unity`) y los prefabs referencian el código por:

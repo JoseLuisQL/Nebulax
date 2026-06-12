@@ -23,6 +23,13 @@ public class GestorJuego : MonoBehaviour
     public int EnemigosDestruidos => enemigosDestruidos;
     public bool JuegoTerminado => juegoTerminado;
 
+    /// <summary>
+    /// Acceso cacheado a la nave del jugador para evitar que otros sistemas
+    /// (p. ej. el detector del area de batalla) llamen a FindWithTag cada frame.
+    /// </summary>
+    public VidaNaveJugador VidaJugador => vidaJugador;
+    public Transform JugadorTransform => vidaJugador != null ? vidaJugador.transform : null;
+
     private void Awake()
     {
         if (Instancia != null && Instancia != this)

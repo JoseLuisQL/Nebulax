@@ -8,7 +8,6 @@ using UnityEngine;
 public class MisilJugador : MonoBehaviour
 {
     [SerializeField] private float velocidad = 7.5f;
-    [SerializeField] private int daño = 999;
     [SerializeField] private float limiteSuperior = 7f;
 
     private void Update()
@@ -31,7 +30,9 @@ public class MisilJugador : MonoBehaviour
         EnemigoBase enemigo = otro.GetComponent<EnemigoBase>();
         if (enemigo != null)
         {
-            enemigo.RecibirDaño(daño);
+            // El misil siempre destruye al enemigo de un impacto (incluido el
+            // Tipo III), sin recurrir a un valor de daño "magico".
+            enemigo.RecibirDañoLetal();
         }
 
         Destroy(gameObject);

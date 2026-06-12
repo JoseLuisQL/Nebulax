@@ -41,6 +41,17 @@ public class DetectorPasoEstructura : MonoBehaviour
 
     private void BuscarJugador()
     {
+        // Preferimos la referencia ya cacheada por el GestorJuego para no
+        // recorrer la escena con FindWithTag en cada frame.
+        if (GestorJuego.Instancia != null && GestorJuego.Instancia.VidaJugador != null)
+        {
+            vidaJugador = GestorJuego.Instancia.VidaJugador;
+            jugadorTransform = vidaJugador.transform;
+            jugadorDetectado = true;
+            return;
+        }
+
+        // Respaldo: si el gestor aun no resolvio la referencia, la buscamos una vez.
         GameObject jugador = GameObject.FindWithTag("Player");
         if (jugador != null)
         {

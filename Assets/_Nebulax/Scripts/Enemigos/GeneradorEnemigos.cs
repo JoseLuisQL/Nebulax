@@ -14,7 +14,11 @@ public class GeneradorEnemigos : MonoBehaviour
     [SerializeField] private float margenHorizontal = 0.8f;
     [SerializeField] private float posicionYSuperior = 6.2f;
 
-    private bool generarEnemigos = true;
+    // Flag dedicado al flujo continuo de enemigos Tipo I (independiente de las
+    // oleadas temporales). Antes existia un unico "generarEnemigos" compartido
+    // que mezclaba el estado global con las oleadas, lo que obligaba a re-activarlo
+    // manualmente y podia reaparecer el Tipo I durante la oleada del Tipo III.
+    private bool generacionTipoUnoActiva = true;
     private bool enemigoTipoDosActivo;
     private bool enemigoTipoTresActivo;
     private Coroutine rutinaTipoUno;
@@ -38,7 +42,9 @@ public class GeneradorEnemigos : MonoBehaviour
 
     public void HabilitarEnemigoTipoTresTemporal(float duracion)
     {
-        generarEnemigos = true; // Re-activar flag para permitir que se instancien
+        // La oleada del Tipo III es independiente: NO reactiva la generacion
+        // continua del Tipo I (esa permanece detenida durante la preparacion
+        // del area de batalla).
         if (rutinaTipoTres != null)
         {
             StopCoroutine(rutinaTipoTres);
@@ -49,7 +55,7 @@ public class GeneradorEnemigos : MonoBehaviour
 
     public void DetenerGeneracion()
     {
-        generarEnemigos = false;
+        generacionTipoUnoActiva = false;
         enemigoTipoDosActivo = false;
         enemigoTipoTresActivo = false;
     }
@@ -57,7 +63,7 @@ public class GeneradorEnemigos : MonoBehaviour
     private IEnumerator GenerarTipoUnoContinuamente()
     {
         yield return new WaitForSeconds(0.5f);
-        while (generarEnemigos)
+        while (generacionTipoUnoActiva)
         {
             CrearEnemigo(prefabEnemigoTipoUno, PosicionAleatoriaSuperior());
             yield return new WaitForSeconds(intervaloEnemigoTipoUno);
@@ -69,7 +75,7 @@ public class GeneradorEnemigos : MonoBehaviour
         enemigoTipoDosActivo = true;
         float fin = Time.time + duracion;
 
-        while (generarEnemigos && enemigoTipoDosActivo && Time.time < fin)
+        while (enemigoTipoDosActivo && Time.time < fin)
         {
             CrearEnemigo(prefabEnemigoTipoDos, PosicionAleatoriaSuperior());
             yield return new WaitForSeconds(intervaloEnemigoTipoDos);
@@ -83,7 +89,7 @@ public class GeneradorEnemigos : MonoBehaviour
         enemigoTipoTresActivo = true;
         float fin = Time.time + duracion;
 
-        while (generarEnemigos && enemigoTipoTresActivo && Time.time < fin)
+        while (enemigoTipoTresActivo && Time.time < fin)
         {
             CrearParEnemigosTipoTres();
             yield return new WaitForSeconds(1.4f);
@@ -122,7 +128,11 @@ public class GeneradorEnemigos : MonoBehaviour
 
     private GameObject CrearEnemigo(GameObject prefab, Vector3 posicion)
     {
-        if (!generarEnemigos || prefab == null)
+        // Ya no se filtra por un flag global: cada corrutina (Tipo I, II o III)
+        // controla su propio ciclo de vida. Esto permite que las oleadas
+        // temporales del Tipo II y III funcionen aunque la generacion continua
+        // del Tipo I este detenida.
+        if (prefab == null)
         {
             return null;
         }

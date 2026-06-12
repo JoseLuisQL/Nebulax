@@ -67,6 +67,21 @@ public class EnemigoBase : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Destruye al enemigo de un solo impacto, sin depender de un valor de daño
+    /// "magico" (antes el misil usaba 999). Lo usa el misil del jugador.
+    /// </summary>
+    public void RecibirDañoLetal()
+    {
+        if (destruido)
+        {
+            return;
+        }
+
+        vidaActual = 0;
+        DestruirEnemigo(true);
+    }
+
     protected virtual void MoverEnemigo()
     {
         transform.Translate(Vector3.down * velocidadMovimiento * Time.deltaTime, Space.World);

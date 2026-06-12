@@ -1,19 +1,39 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Actualiza la interfaz mínima del juego: vida, contador, alerta y Game Over.
+///
+/// La UI es agnóstica a la implementación: cada texto admite tanto el
+/// componente legacy <see cref="Text"/> (campos ya cableados en la escena) como
+/// <see cref="TMP_Text"/> (TextMeshPro). Si se asigna la versión TMP, se usa
+/// esa; si no, se conserva el comportamiento actual con Text legacy. Esto
+/// permite migrar a TextMeshPro de forma gradual y sin romper la escena: basta
+/// con importar "TMP Essentials" y arrastrar los nuevos componentes a los
+/// campos TMP correspondientes.
 /// </summary>
 public class GestorUI : MonoBehaviour
 {
+    [Header("Texto legacy (UnityEngine.UI.Text)")]
     [SerializeField] private Text textoVidaJugador;
     [SerializeField] private Text textoEnemigosDestruidos;
     [SerializeField] private Text textoAlertaEnemigoIII;
+    [SerializeField] private Text textoGameOverEnemigos;
+
+    [Header("Texto TextMeshPro (opcional, tiene prioridad si se asigna)")]
+    [SerializeField] private TMP_Text textoVidaJugadorTMP;
+    [SerializeField] private TMP_Text textoEnemigosDestruidosTMP;
+    [SerializeField] private TMP_Text textoAlertaEnemigoIIITMP;
+    [SerializeField] private TMP_Text textoGameOverEnemigosTMP;
+
+    [Header("Otros elementos de UI")]
     [SerializeField] private GameObject imagenGameOver;
     [SerializeField] private Image imagenRellenoVida;
     [SerializeField] private GameObject hudJuego;
 
-    [SerializeField] private Text textoGameOverEnemigos;
+    // Último valor conocido del contador, para no depender de parsear el texto.
+    private int ultimoConteoEnemigos;
 
     private void Awake()
     {
@@ -34,7 +54,7 @@ public class GestorUI : MonoBehaviour
 
         MostrarAlertaEnemigoIII(false);
         if (imagenGameOver != null) imagenGameOver.SetActive(false);
-        
+
         ActualizarVida(100);
         ActualizarEnemigosDestruidos(0);
     }
@@ -42,11 +62,8 @@ public class GestorUI : MonoBehaviour
     public void ActualizarVida(int porcentajeVida)
     {
         float pct = Mathf.Clamp(porcentajeVida, 0, 100);
-        if (textoVidaJugador != null)
-        {
-            textoVidaJugador.supportRichText = true;
-            textoVidaJugador.text = pct + "%";
-        }
+        AsignarTexto(textoVidaJugadorTMP, textoVidaJugador, pct + "%");
+
         if (imagenRellenoVida != null)
         {
             imagenRellenoVida.fillAmount = pct / 100f;
@@ -55,30 +72,37 @@ public class GestorUI : MonoBehaviour
 
     public void ActualizarEnemigosDestruidos(int cantidad)
     {
-        if (textoEnemigosDestruidos != null)
-        {
-            textoEnemigosDestruidos.text = Mathf.Max(0, cantidad).ToString();
-        }
+        ultimoConteoEnemigos = Mathf.Max(0, cantidad);
+        AsignarTexto(textoEnemigosDestruidosTMP, textoEnemigosDestruidos,
+            ultimoConteoEnemigos.ToString());
     }
 
     public void MostrarAlertaEnemigoIII(bool visible)
     {
-        if (textoAlertaEnemigoIII != null)
-        {
-            Transform banner = textoAlertaEnemigoIII.transform.parent;
-            if (banner != null && banner.name == "AlertaBanner")
-            {
-                banner.gameObject.SetActive(visible);
-            }
-            else
-            {
-                textoAlertaEnemigoIII.gameObject.SetActive(visible);
-            }
+        // Componente activo (TMP tiene prioridad) para resolver el banner padre.
+        Component objetivo = textoAlertaEnemigoIIITMP != null
+            ? (Component)textoAlertaEnemigoIIITMP
+            : textoAlertaEnemigoIII;
 
-            if (visible)
-            {
-                textoAlertaEnemigoIII.text = "<color=#ff3333>¡ A L E R T A !</color>\n<size=24><color=#ffffff>ANOMALÍA CLASE III DETECTADA</color></size>";
-            }
+        if (objetivo == null)
+        {
+            return;
+        }
+
+        Transform banner = objetivo.transform.parent;
+        if (banner != null && banner.name == "AlertaBanner")
+        {
+            banner.gameObject.SetActive(visible);
+        }
+        else
+        {
+            objetivo.gameObject.SetActive(visible);
+        }
+
+        if (visible)
+        {
+            AsignarTexto(textoAlertaEnemigoIIITMP, textoAlertaEnemigoIII,
+                "<color=#ff3333>¡ A L E R T A !</color>\n<size=24><color=#ffffff>ANOMALÍA CLASE III DETECTADA</color></size>");
         }
     }
 
@@ -87,21 +111,37 @@ public class GestorUI : MonoBehaviour
         if (imagenGameOver != null)
         {
             imagenGameOver.SetActive(visible);
-            
-            // Actualizar el texto final de enemigos eliminados
-            if (visible && textoGameOverEnemigos != null)
+
+            // Texto final de enemigos eliminados: usamos el conteo real guardado
+            // en lugar de parsear el string del HUD (más robusto).
+            if (visible)
             {
-                int enemigos = 0;
-                if (textoEnemigosDestruidos != null && int.TryParse(textoEnemigosDestruidos.text, out int cant))
-                {
-                    enemigos = cant;
-                }
-                textoGameOverEnemigos.text = "ENEMIGOS ELIMINADOS:\n<color=#ffcc00>" + enemigos + "</color>";
+                AsignarTexto(textoGameOverEnemigosTMP, textoGameOverEnemigos,
+                    "ENEMIGOS ELIMINADOS:\n<color=#ffcc00>" + ultimoConteoEnemigos + "</color>");
             }
         }
+
         if (hudJuego != null)
         {
             hudJuego.SetActive(!visible);
+        }
+    }
+
+    /// <summary>
+    /// Escribe el texto en el componente TMP si está asignado; si no, en el
+    /// componente Text legacy. Habilita rich text en ambos casos.
+    /// </summary>
+    private static void AsignarTexto(TMP_Text destinoTMP, Text destinoLegacy, string valor)
+    {
+        if (destinoTMP != null)
+        {
+            destinoTMP.richText = true;
+            destinoTMP.text = valor;
+        }
+        else if (destinoLegacy != null)
+        {
+            destinoLegacy.supportRichText = true;
+            destinoLegacy.text = valor;
         }
     }
 }

@@ -101,7 +101,7 @@ public class EnemigoBase : MonoBehaviour
 
     protected virtual void DispararProyectiles(Transform origen)
     {
-        Instantiate(prefabProyectilEnemigo, origen.position, Quaternion.identity);
+        PoolObjetos.Crear(prefabProyectilEnemigo, origen.position, Quaternion.identity);
     }
 
     private void DestruirSiSaleDePantalla()

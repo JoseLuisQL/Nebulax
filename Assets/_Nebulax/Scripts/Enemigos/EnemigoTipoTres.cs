@@ -43,8 +43,8 @@ public class EnemigoTipoTres : EnemigoBase
         Vector3 offsetIzq = new Vector3(-0.45f, 0f, 0f);
         Vector3 offsetDer = new Vector3(0.45f, 0f, 0f);
         
-        Instantiate(PrefabProyectilEnemigo, origen.position + offsetIzq, Quaternion.identity);
-        Instantiate(PrefabProyectilEnemigo, origen.position, Quaternion.identity);
-        Instantiate(PrefabProyectilEnemigo, origen.position + offsetDer, Quaternion.identity);
+        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position + offsetIzq, Quaternion.identity);
+        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position, Quaternion.identity);
+        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position + offsetDer, Quaternion.identity);
     }
 }

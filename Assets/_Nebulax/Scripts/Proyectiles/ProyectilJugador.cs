@@ -18,7 +18,7 @@ public class ProyectilJugador : MonoBehaviour
 
         if (transform.position.y > limiteSuperior)
         {
-            Destroy(gameObject);
+            PoolObjetos.Liberar(gameObject);
         }
     }
 
@@ -35,6 +35,6 @@ public class ProyectilJugador : MonoBehaviour
             enemigo.RecibirDaño(daño);
         }
 
-        Destroy(gameObject);
+        PoolObjetos.Liberar(gameObject);
     }
 }

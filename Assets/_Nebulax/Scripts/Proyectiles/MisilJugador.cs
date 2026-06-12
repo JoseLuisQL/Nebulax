@@ -16,7 +16,7 @@ public class MisilJugador : MonoBehaviour
 
         if (transform.position.y > limiteSuperior)
         {
-            Destroy(gameObject);
+            PoolObjetos.Liberar(gameObject);
         }
     }
 
@@ -35,6 +35,6 @@ public class MisilJugador : MonoBehaviour
             enemigo.RecibirDañoLetal();
         }
 
-        Destroy(gameObject);
+        PoolObjetos.Liberar(gameObject);
     }
 }

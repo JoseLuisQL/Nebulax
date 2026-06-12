@@ -157,6 +157,6 @@ public class DisparoNaveJugador : MonoBehaviour
         }
 
         Quaternion rotacion = punto.rotation * Quaternion.Euler(0f, 0f, anguloDeg);
-        Instantiate(prefab, punto.position, rotacion);
+        PoolObjetos.Crear(prefab, punto.position, rotacion);
     }
 }

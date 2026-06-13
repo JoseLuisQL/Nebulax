@@ -42,10 +42,10 @@ public static class NebulaxTilemapEditor
         CrearCarpetas();
 
         Material material = CrearMaterialTiles();
-        // Colores claros y con buen contraste sobre el fondo oscuro del espacio.
-        Tile tileFondo = CrearTile("TileFondo", new Color(0.16f, 0.20f, 0.40f), new Color(0.24f, 0.30f, 0.56f), material);
-        Tile tileMuro = CrearTile("TileMuro", new Color(0.55f, 0.62f, 0.85f), new Color(0.82f, 0.88f, 1.0f), material, borde: true);
-        Tile tileDeco = CrearTile("TileDecoracion", new Color(0.0f, 0.95f, 0.75f), new Color(0.4f, 1f, 0.95f), material);
+        // Texturas procedurales realistas (placas metálicas, casco, núcleo).
+        Tile tileFondo = CrearTile("TileFondo", TipoTextura.CascoMetalico, false);
+        Tile tileMuro = CrearTile("TileMuro", TipoTextura.PlacaBlindada, true);
+        Tile tileDeco = CrearTile("TileDecoracion", TipoTextura.NucleoEnergia, false);
 
         CrearPaleta(tileFondo, tileMuro, tileDeco);
         CrearEscena(material, tileFondo, tileMuro, tileDeco);
@@ -104,10 +104,12 @@ public static class NebulaxTilemapEditor
         return mat;
     }
 
-    // ── Creación de un Tile con textura generada ───────────────────────────────
-    private static Tile CrearTile(string nombre, Color baseColor, Color detalle, Material material, bool borde = false)
+    private enum TipoTextura { CascoMetalico, PlacaBlindada, NucleoEnergia }
+
+    // ── Creación de un Tile con textura procedural realista ────────────────────
+    private static Tile CrearTile(string nombre, TipoTextura tipo, bool borde)
     {
-        Sprite sprite = GenerarSpriteTile(nombre, baseColor, detalle, borde);
+        Sprite sprite = GenerarSpriteTile(nombre, tipo);
 
         string rutaTile = Raiz + "/Arte/Tiles/" + nombre + ".asset";
         Tile tile = AssetDatabase.LoadAssetAtPath<Tile>(rutaTile);
@@ -122,28 +124,17 @@ public static class NebulaxTilemapEditor
         return tile;
     }
 
-    private static Sprite GenerarSpriteTile(string nombre, Color baseColor, Color detalle, bool borde)
+    private static Sprite GenerarSpriteTile(string nombre, TipoTextura tipo)
     {
         string ruta = Raiz + "/Arte/Tiles/Texturas/" + nombre + ".png";
-        int size = 64;
+        int size = 128; // mayor resolución para detalle realista
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        for (int y = 0; y < size; y++)
+
+        switch (tipo)
         {
-            for (int x = 0; x < size; x++)
-            {
-                bool esBorde = x < 4 || y < 4 || x >= size - 4 || y >= size - 4;
-                Color c = baseColor;
-                if (borde && esBorde)
-                {
-                    c = detalle;
-                }
-                else if (!borde && ((x + y) % 16 < 2))
-                {
-                    c = Color.Lerp(baseColor, detalle, 0.5f); // patrón sutil
-                }
-                c.a = 1f;
-                tex.SetPixel(x, y, c);
-            }
+            case TipoTextura.CascoMetalico: PintarCascoMetalico(tex, size); break;
+            case TipoTextura.PlacaBlindada: PintarPlacaBlindada(tex, size); break;
+            default: PintarNucleoEnergia(tex, size); break;
         }
         tex.Apply();
 
@@ -154,8 +145,9 @@ public static class NebulaxTilemapEditor
         {
             ti.textureType = TextureImporterType.Sprite;
             ti.spriteImportMode = SpriteImportMode.Single;
-            ti.spritePixelsPerUnit = 64;
-            ti.filterMode = FilterMode.Point;
+            ti.spritePixelsPerUnit = 128;
+            ti.filterMode = FilterMode.Bilinear; // suaviza el detalle (más realista)
+            ti.mipmapEnabled = false;
             ti.SaveAndReimport();
         }
 
@@ -166,6 +158,171 @@ public static class NebulaxTilemapEditor
             Debug.LogWarning("Nebulax: no se pudo cargar el sprite del tile en " + ruta);
         }
         return sprite;
+    }
+
+    // ── Texturas procedurales realistas ────────────────────────────────────────
+
+    /// <summary>Ruido fractal (varias octavas de Perlin) en [0,1].</summary>
+    private static float RuidoFractal(float x, float y, float escala, int octavas, float semilla)
+    {
+        float valor = 0f, amplitud = 1f, frecuencia = escala, total = 0f;
+        for (int o = 0; o < octavas; o++)
+        {
+            valor += Mathf.PerlinNoise(x * frecuencia + semilla, y * frecuencia + semilla) * amplitud;
+            total += amplitud;
+            amplitud *= 0.5f;
+            frecuencia *= 2f;
+        }
+        return valor / total;
+    }
+
+    /// <summary>Casco metálico oscuro con paneles, suciedad y ruido (fondo).</summary>
+    private static void PintarCascoMetalico(Texture2D tex, int size)
+    {
+        Color baseOscuro = new Color(0.16f, 0.19f, 0.30f);
+        Color baseClaro = new Color(0.26f, 0.31f, 0.45f);
+        int panel = size / 2;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float n = RuidoFractal(x / (float)size, y / (float)size, 6f, 4, 11.3f);
+                Color c = Color.Lerp(baseOscuro, baseClaro, n);
+
+                // Líneas de panel (división en cuadrantes).
+                int mx = x % panel, my = y % panel;
+                bool lineaPanel = mx < 2 || my < 2 || mx > panel - 3 || my > panel - 3;
+                if (lineaPanel)
+                {
+                    c = Color.Lerp(c, Color.black, 0.45f);
+                }
+
+                // Manchas de suciedad/óxido sutiles.
+                float sucio = RuidoFractal(x / (float)size, y / (float)size, 3f, 3, 71.7f);
+                if (sucio > 0.62f)
+                {
+                    c = Color.Lerp(c, new Color(0.10f, 0.09f, 0.08f), (sucio - 0.62f) * 1.5f);
+                }
+
+                c.a = 1f;
+                tex.SetPixel(x, y, c);
+            }
+        }
+        DibujarRemaches(tex, size, new Color(0.10f, 0.12f, 0.18f), new Color(0.45f, 0.52f, 0.68f));
+    }
+
+    /// <summary>Placa blindada clara biselada con remaches y rayones (muros).</summary>
+    private static void PintarPlacaBlindada(Texture2D tex, int size)
+    {
+        Color metal = new Color(0.52f, 0.58f, 0.74f);
+        Color metalClaro = new Color(0.78f, 0.84f, 0.98f);
+        Color metalOscuro = new Color(0.30f, 0.34f, 0.46f);
+        int bisel = size / 12;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float n = RuidoFractal(x / (float)size, y / (float)size, 5f, 4, 23.9f);
+                Color c = Color.Lerp(metalOscuro, metal, n);
+
+                // Biselado 3D: claro arriba/izquierda, oscuro abajo/derecha.
+                if (x < bisel || y > size - 1 - bisel)
+                {
+                    float t = 1f - Mathf.Min(x, size - 1 - y) / (float)bisel;
+                    c = Color.Lerp(c, metalClaro, Mathf.Clamp01(t) * 0.8f);
+                }
+                if (x > size - 1 - bisel || y < bisel)
+                {
+                    float t = 1f - Mathf.Min(size - 1 - x, y) / (float)bisel;
+                    c = Color.Lerp(c, metalOscuro, Mathf.Clamp01(t) * 0.8f);
+                }
+
+                // Brillo especular suave hacia el centro-superior.
+                float bx = (x - size * 0.4f) / size;
+                float by = (y - size * 0.65f) / size;
+                float spec = Mathf.Clamp01(1f - (bx * bx + by * by) * 4f);
+                c = Color.Lerp(c, metalClaro, spec * 0.25f);
+
+                // Rayones diagonales finos.
+                float rayon = Mathf.PerlinNoise(x * 0.35f + y * 0.35f, 5.5f);
+                if (rayon > 0.80f)
+                {
+                    c = Color.Lerp(c, metalClaro, (rayon - 0.80f) * 2f);
+                }
+
+                c.a = 1f;
+                tex.SetPixel(x, y, c);
+            }
+        }
+        DibujarRemaches(tex, size, metalOscuro, metalClaro);
+    }
+
+    /// <summary>Núcleo de energía: brillo radial turquesa con destellos (deco).</summary>
+    private static void PintarNucleoEnergia(Texture2D tex, int size)
+    {
+        Vector2 c0 = new Vector2(size / 2f, size / 2f);
+        Color nucleo = new Color(0.7f, 1f, 0.95f);
+        Color medio = new Color(0.0f, 0.85f, 0.7f);
+        Color borde = new Color(0.0f, 0.35f, 0.45f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float d = Vector2.Distance(new Vector2(x, y), c0) / (size * 0.5f);
+                d = Mathf.Clamp01(d);
+
+                Color c;
+                if (d < 0.5f) c = Color.Lerp(nucleo, medio, d / 0.5f);
+                else c = Color.Lerp(medio, borde, (d - 0.5f) / 0.5f);
+
+                // Pulso de venas de energía (ruido radial).
+                float venas = RuidoFractal(x / (float)size, y / (float)size, 8f, 3, 4.2f);
+                c = Color.Lerp(c, nucleo, Mathf.Clamp01(venas - 0.55f) * (1f - d));
+
+                float alpha = Mathf.Clamp01(1.15f - d); // borde se desvanece
+                c.a = alpha;
+                tex.SetPixel(x, y, c);
+            }
+        }
+    }
+
+    /// <summary>Dibuja remaches con sombra+luz en las esquinas para dar relieve.</summary>
+    private static void DibujarRemaches(Texture2D tex, int size, Color sombra, Color luz)
+    {
+        int margen = size / 10;
+        int[] xs = { margen, size - margen };
+        int[] ys = { margen, size - margen };
+        int radio = Mathf.Max(3, size / 22);
+
+        foreach (int cx in xs)
+        {
+            foreach (int cy in ys)
+            {
+                for (int y = -radio - 1; y <= radio + 1; y++)
+                {
+                    for (int x = -radio - 1; x <= radio + 1; x++)
+                    {
+                        int px = cx + x, py = cy + y;
+                        if (px < 0 || py < 0 || px >= size || py >= size) continue;
+                        float d = Mathf.Sqrt(x * x + y * y);
+                        if (d <= radio)
+                        {
+                            // Esfera: luz arriba-izquierda, sombra abajo-derecha.
+                            float il = Mathf.Clamp01((-x - y) / (radio * 1.6f) + 0.5f);
+                            Color rc = Color.Lerp(sombra, luz, il);
+                            tex.SetPixel(px, py, rc);
+                        }
+                        else if (d <= radio + 1.2f)
+                        {
+                            tex.SetPixel(px, py, Color.Lerp(tex.GetPixel(px, py), sombra, 0.6f));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // ── Tile Palette real (prefab Grid + GridPalette) ──────────────────────────

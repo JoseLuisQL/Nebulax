@@ -43,6 +43,65 @@ public static class NebulaxTilemapEditor
 
         Material material = CrearMaterialTiles();
         // Texturas procedurales realistas (placas metálicas, casco, núcleo).
+        // Regenerar los assets de tiles/material/paleta es INOFENSIVO: solo
+        // actualiza recursos compartidos, no toca la escena ni su contenido.
+        Tile tileFondo = CrearTile("TileFondo", TipoTextura.CascoMetalico, false);
+        Tile tileMuro = CrearTile("TileMuro", TipoTextura.PlacaBlindada, true);
+        Tile tileDeco = CrearTile("TileDecoracion", TipoTextura.NucleoEnergia, false);
+
+        CrearPaleta(tileFondo, tileMuro, tileDeco);
+
+        // ── COMPORTAMIENTO NO DESTRUCTIVO (Fase 3) ──────────────────────────────
+        // EscenaNivel2 pasa a ser una escena MANTENIDA A MANO. Si ya existe, NO
+        // la regeneramos por copia de EscenaPrincipal (eso borraría cualquier
+        // personalización: dificultad, jefe, layout, ajustes manuales). Solo se
+        // crea automáticamente la PRIMERA vez (cuando aún no existe).
+        if (File.Exists(RutaFs(RutaEscena)))
+        {
+            // Aseguramos que siga registrada en Build Settings, pero respetamos
+            // su contenido actual.
+            RegistrarEnBuild();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("Nebulax: '" + RutaEscena + "' ya existe; se respeta su contenido " +
+                      "(escena mantenida a mano). Se actualizaron los assets de tiles/material/paleta. " +
+                      "Si REALMENTE quieres recrearla desde cero (se perderan los cambios), usa " +
+                      "'Nebulax/Funcionalidades/Construir 2da escena (FORZAR regeneracion)'.");
+            return;
+        }
+
+        CrearEscena(material, tileFondo, tileMuro, tileDeco);
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("Nebulax: 2da escena JUGABLE con Tilemaps creada en " + RutaEscena +
+                  " (juego completo + 3 Tilemaps: Fondo, Muros con collider y Decoracion). " +
+                  "Tile Palette: " + RutaPaleta);
+    }
+
+    /// <summary>
+    /// Regeneración EXPLÍCITA y DESTRUCTIVA de EscenaNivel2 a partir de
+    /// EscenaPrincipal (comportamiento antiguo). Sobrescribe la escena actual,
+    /// por lo que se PIERDE cualquier personalización. Pide confirmación.
+    /// </summary>
+    [MenuItem("Nebulax/Funcionalidades/Construir 2da escena (FORZAR regeneracion)")]
+    public static void ForzarRegenerarNivel2()
+    {
+        bool confirmar = EditorUtility.DisplayDialog(
+            "Forzar regeneración de EscenaNivel2",
+            "Esto RECREA EscenaNivel2 desde una copia de EscenaPrincipal y SOBRESCRIBE la " +
+            "escena actual. Se perderán los cambios manuales (dificultad, jefe, layout, etc.).\n\n" +
+            "¿Continuar?",
+            "Sí, regenerar (perder cambios)", "Cancelar");
+
+        if (!confirmar)
+        {
+            Debug.Log("Nebulax: regeneración de EscenaNivel2 cancelada (no se tocó la escena).");
+            return;
+        }
+
+        CrearCarpetas();
+        Material material = CrearMaterialTiles();
         Tile tileFondo = CrearTile("TileFondo", TipoTextura.CascoMetalico, false);
         Tile tileMuro = CrearTile("TileMuro", TipoTextura.PlacaBlindada, true);
         Tile tileDeco = CrearTile("TileDecoracion", TipoTextura.NucleoEnergia, false);
@@ -52,9 +111,7 @@ public static class NebulaxTilemapEditor
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("Nebulax: 2da escena JUGABLE con Tilemaps creada en " + RutaEscena +
-                  " (juego completo + 3 Tilemaps: Fondo, Muros con collider y Decoracion). " +
-                  "Tile Palette: " + RutaPaleta);
+        Debug.Log("Nebulax: EscenaNivel2 REGENERADA desde cero en " + RutaEscena + ".");
     }
 
     private static void CrearCarpetas()

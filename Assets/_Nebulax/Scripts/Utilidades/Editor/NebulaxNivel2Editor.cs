@@ -164,101 +164,127 @@ public static class NebulaxNivel2Editor
         return valor / total;
     }
 
-    /// <summary>Roca de asteroide: gris-marrón con cráteres y grano (fondo).</summary>
+    /// <summary>
+    /// Fondo de campo de asteroides: nebulosa rocosa oscura con grano y pequeñas
+    /// piedras dispersas. Llena el tile (es fondo) pero con variación orgánica,
+    /// sin patrón cuadriculado.
+    /// </summary>
     private static void PintarRocaAsteroide(Texture2D tex, int size)
     {
-        Color rocaOscura = new Color(0.20f, 0.17f, 0.15f);
-        Color rocaClara = new Color(0.42f, 0.37f, 0.32f);
+        Color espacio = new Color(0.05f, 0.05f, 0.09f);
+        Color polvo = new Color(0.16f, 0.13f, 0.12f);
+        Color polvoClaro = new Color(0.28f, 0.23f, 0.20f);
 
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
-                float n = RuidoFractal(x / (float)size, y / (float)size, 5f, 5, 31.7f);
-                Color c = Color.Lerp(rocaOscura, rocaClara, n);
-
-                // Vetas minerales sutiles.
-                float veta = RuidoFractal(x / (float)size, y / (float)size, 2.5f, 3, 88.1f);
-                if (veta > 0.66f)
-                {
-                    c = Color.Lerp(c, new Color(0.30f, 0.26f, 0.20f), (veta - 0.66f) * 1.6f);
-                }
-
+                float nx = x / (float)size, ny = y / (float)size;
+                // Nube de polvo cósmico (fractal suave, distinto en cada zona).
+                float nube = RuidoFractal(nx, ny, 3f, 4, 41.3f);
+                Color c = Color.Lerp(espacio, polvo, nube);
+                // Zonas algo más claras (polvo iluminado).
+                float brilloPolvo = RuidoFractal(nx, ny, 6f, 3, 12.9f);
+                c = Color.Lerp(c, polvoClaro, Mathf.Clamp01(brilloPolvo - 0.55f) * 0.8f);
                 c.a = 1f;
                 tex.SetPixel(x, y, c);
             }
         }
-        // Cráteres realistas (varios, con borde iluminado y centro en sombra).
-        int semillaCrater = 7;
-        System.Random rnd = new System.Random(semillaCrater);
-        int craters = 6;
-        for (int i = 0; i < craters; i++)
+
+        // Pequeñas piedras/asteroides dispersos con forma (no cuadrados).
+        System.Random rnd = new System.Random(7);
+        int piedras = 5;
+        for (int i = 0; i < piedras; i++)
         {
-            int cx = rnd.Next(size / 8, size - size / 8);
-            int cy = rnd.Next(size / 8, size - size / 8);
-            int radio = rnd.Next(size / 14, size / 7);
-            DibujarCrater(tex, size, cx, cy, radio);
+            int cx = rnd.Next(size / 6, size - size / 6);
+            int cy = rnd.Next(size / 6, size - size / 6);
+            int radio = rnd.Next(size / 16, size / 9);
+            DibujarPiedra(tex, size, cx, cy, radio, (float)rnd.NextDouble() * 10f);
         }
     }
 
-    private static void DibujarCrater(Texture2D tex, int size, int cx, int cy, int radio)
+    /// <summary>Dibuja una piedra/asteroide con silueta orgánica y sombreado.</summary>
+    private static void DibujarPiedra(Texture2D tex, int size, int cx, int cy, int radio, float semilla)
     {
+        Color roca = new Color(0.34f, 0.29f, 0.25f);
+        Color rocaLuz = new Color(0.55f, 0.49f, 0.42f);
+        Color rocaSombra = new Color(0.12f, 0.10f, 0.09f);
+
         for (int y = -radio - 2; y <= radio + 2; y++)
         {
             for (int x = -radio - 2; x <= radio + 2; x++)
             {
                 int px = cx + x, py = cy + y;
                 if (px < 0 || py < 0 || px >= size || py >= size) continue;
+                float ang = Mathf.Atan2(y, x);
+                // Radio irregular: la silueta NO es un círculo perfecto.
+                float rIrr = radio * (0.78f + 0.22f * Mathf.PerlinNoise(Mathf.Cos(ang) * 1.5f + semilla, Mathf.Sin(ang) * 1.5f + semilla));
                 float d = Mathf.Sqrt(x * x + y * y);
-                if (d <= radio)
+                if (d <= rIrr)
                 {
-                    // Hundimiento: centro oscuro, suelo con leve gradiente.
-                    float t = d / radio;
-                    Color baseC = tex.GetPixel(px, py);
-                    Color hueco = Color.Lerp(new Color(0.10f, 0.08f, 0.07f), baseC, t);
-                    // Borde iluminado arriba-izquierda.
-                    float il = Mathf.Clamp01((-x - y) / (radio * 1.5f) + 0.5f);
-                    if (t > 0.78f) hueco = Color.Lerp(hueco, new Color(0.55f, 0.50f, 0.44f), il * 0.7f);
-                    tex.SetPixel(px, py, hueco);
+                    float t = d / rIrr;
+                    // Sombreado esférico: luz arriba-izquierda.
+                    float il = Mathf.Clamp01((-x - y) / (rIrr * 1.6f) + 0.5f);
+                    Color c = Color.Lerp(rocaLuz, roca, t);
+                    c = Color.Lerp(rocaSombra, c, il);
+                    // Grano superficial.
+                    float grano = RuidoFractal(px / (float)size, py / (float)size, 9f, 3, semilla);
+                    c = Color.Lerp(c, rocaSombra, Mathf.Clamp01(grano - 0.6f) * 0.5f);
+                    c.a = 1f;
+                    tex.SetPixel(px, py, c);
                 }
             }
         }
     }
 
-    /// <summary>Hielo cósmico: azul cristalino traslúcido con facetas (muros).</summary>
+    /// <summary>
+    /// Muro: fragmento de hielo cósmico con SILUETA poligonal facetada (no
+    /// cuadrado). Fuera de la silueta es transparente. Traslúcido con brillos.
+    /// </summary>
     private static void PintarHieloCosmico(Texture2D tex, int size)
     {
         Color hieloProfundo = new Color(0.18f, 0.34f, 0.52f);
         Color hieloClaro = new Color(0.62f, 0.82f, 0.95f);
-        Color brillo = new Color(0.90f, 0.97f, 1f);
-        int bisel = size / 10;
+        Color brillo = new Color(0.92f, 0.98f, 1f);
+        Vector2 c0 = new Vector2(size / 2f, size / 2f);
+        float radioBase = size * 0.46f;
 
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
-                float n = RuidoFractal(x / (float)size, y / (float)size, 4f, 4, 12.5f);
+                Vector2 p = new Vector2(x, y) - c0;
+                float ang = Mathf.Atan2(p.y, p.x);
+                // Cristal poligonal: 6 facetas (radio escalonado por sectores).
+                float facetas = 6f;
+                float sector = Mathf.Round(ang / (Mathf.PI * 2f / facetas));
+                float angFaceta = sector * (Mathf.PI * 2f / facetas);
+                float rFaceta = radioBase * (0.86f + 0.14f * Mathf.Cos(ang - angFaceta));
+                float d = p.magnitude;
+
+                if (d > rFaceta)
+                {
+                    tex.SetPixel(x, y, new Color(0f, 0f, 0f, 0f)); // transparente
+                    continue;
+                }
+
+                float nx = x / (float)size, ny = y / (float)size;
+                float n = RuidoFractal(nx, ny, 4f, 4, 12.5f);
                 Color c = Color.Lerp(hieloProfundo, hieloClaro, n);
 
-                // Biselado cristalino (3D).
-                if (x < bisel || y > size - 1 - bisel)
+                // Caras del cristal: cada faceta con tono ligeramente distinto.
+                float caraTono = 0.5f + 0.5f * Mathf.Cos(angFaceta);
+                c = Color.Lerp(c, hieloClaro, caraTono * 0.3f);
+
+                // Borde iluminado (contorno del cristal).
+                if (d > rFaceta * 0.82f)
                 {
-                    float t = 1f - Mathf.Min(x, size - 1 - y) / (float)bisel;
-                    c = Color.Lerp(c, brillo, Mathf.Clamp01(t) * 0.85f);
-                }
-                if (x > size - 1 - bisel || y < bisel)
-                {
-                    float t = 1f - Mathf.Min(size - 1 - x, y) / (float)bisel;
-                    c = Color.Lerp(c, hieloProfundo, Mathf.Clamp01(t) * 0.8f);
+                    c = Color.Lerp(c, brillo, (d - rFaceta * 0.82f) / (rFaceta * 0.18f) * 0.8f);
                 }
 
-                // Facetas/fracturas del hielo (líneas claras).
-                float frac = Mathf.PerlinNoise(x * 0.18f, y * 0.22f);
-                float frac2 = Mathf.PerlinNoise(y * 0.16f + 9f, x * 0.20f + 3f);
-                if (frac > 0.74f || frac2 > 0.78f)
-                {
-                    c = Color.Lerp(c, brillo, 0.5f);
-                }
+                // Brillo especular interno.
+                float spec = Mathf.Clamp01(1f - (p + new Vector2(size * 0.12f, -size * 0.12f)).magnitude / (radioBase * 0.6f));
+                c = Color.Lerp(c, brillo, spec * 0.5f);
 
                 c.a = 1f;
                 tex.SetPixel(x, y, c);
@@ -266,37 +292,57 @@ public static class NebulaxNivel2Editor
         }
     }
 
-    /// <summary>Cristal de energía púrpura: brillo radial con destellos (deco).</summary>
+    /// <summary>
+    /// Cristal de energía púrpura con forma de GEMA RÓMBICA facetada (no
+    /// cuadrado): silueta de diamante, caras con distinto tono, destellos y
+    /// transparencia fuera de la gema.
+    /// </summary>
     private static void PintarCristalEnergia(Texture2D tex, int size)
     {
         Vector2 c0 = new Vector2(size / 2f, size / 2f);
-        Color nucleo = new Color(0.95f, 0.80f, 1f);
-        Color medio = new Color(0.65f, 0.25f, 0.95f);
-        Color borde = new Color(0.28f, 0.05f, 0.45f);
+        Color nucleo = new Color(0.97f, 0.85f, 1f);
+        Color medio = new Color(0.66f, 0.26f, 0.95f);
+        Color borde = new Color(0.30f, 0.06f, 0.48f);
+        float radio = size * 0.46f;
 
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
-                float d = Vector2.Distance(new Vector2(x, y), c0) / (size * 0.5f);
-                d = Mathf.Clamp01(d);
-
-                Color c;
-                if (d < 0.5f) c = Color.Lerp(nucleo, medio, d / 0.5f);
-                else c = Color.Lerp(medio, borde, (d - 0.5f) / 0.5f);
-
-                // Destellos en cruz (estrella de energía).
-                float dx = Mathf.Abs(x - c0.x), dy = Mathf.Abs(y - c0.y);
-                if ((dx < 2.5f || dy < 2.5f) && d < 0.95f)
+                Vector2 p = new Vector2(x, y) - c0;
+                // Silueta de rombo/diamante: |x|+|y| <= radio (distancia Manhattan).
+                float dManhattan = Mathf.Abs(p.x) + Mathf.Abs(p.y);
+                if (dManhattan > radio)
                 {
-                    c = Color.Lerp(c, nucleo, (1f - d) * 0.7f);
+                    tex.SetPixel(x, y, new Color(0f, 0f, 0f, 0f)); // transparente
+                    continue;
                 }
 
-                float venas = RuidoFractal(x / (float)size, y / (float)size, 7f, 3, 5.5f);
-                c = Color.Lerp(c, nucleo, Mathf.Clamp01(venas - 0.6f) * (1f - d));
+                float t = Mathf.Clamp01(dManhattan / radio);
+                Color c;
+                if (t < 0.5f) c = Color.Lerp(nucleo, medio, t / 0.5f);
+                else c = Color.Lerp(medio, borde, (t - 0.5f) / 0.5f);
 
-                float alpha = Mathf.Clamp01(1.15f - d);
-                c.a = alpha;
+                // Facetas de la gema: 4 caras (cuadrantes) con tono distinto, y
+                // aristas marcadas (las diagonales del rombo).
+                bool cuadranteSup = p.y >= Mathf.Abs(p.x);
+                bool cuadranteInf = -p.y >= Mathf.Abs(p.x);
+                if (cuadranteSup) c = Color.Lerp(c, nucleo, 0.18f);   // cara superior brilla
+                else if (cuadranteInf) c = Color.Lerp(c, borde, 0.22f); // cara inferior en sombra
+
+                // Aristas (cerca de las diagonales x=±y): línea clara.
+                float arista = Mathf.Abs(Mathf.Abs(p.x) - Mathf.Abs(p.y));
+                if (arista < 2.5f && t < 0.92f)
+                {
+                    c = Color.Lerp(c, nucleo, 0.6f);
+                }
+
+                // Destello central.
+                float dCentro = p.magnitude / radio;
+                c = Color.Lerp(c, nucleo, Mathf.Clamp01(0.4f - dCentro) * 1.5f);
+
+                // Borde de la gema un poco más definido.
+                c.a = (t > 0.92f) ? Mathf.Lerp(1f, 0.85f, (t - 0.92f) / 0.08f) : 1f;
                 tex.SetPixel(x, y, c);
             }
         }

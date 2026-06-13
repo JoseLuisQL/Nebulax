@@ -41,6 +41,10 @@ public class EnemigoJefe : EnemigoBase
     // enemigos normales). En el Nivel 1 vale 1.0 -> vida base sin cambios.
     protected override float FactorVidaNivel => ConfiguracionNivel.FactorVidaJefe;
 
+    // El jefe NO usa la persecución horizontal genérica: tiene su propio patrón
+    // de entrada + vaivén + flotación por fases.
+    protected override bool UsaPersecucion => false;
+
     protected override void Awake()
     {
         base.Awake();

@@ -33,8 +33,12 @@ public class EnemigoTipoDos : EnemigoBase
         
         Vector3 offsetIzq = new Vector3(-0.35f, 0f, 0f);
         Vector3 offsetDer = new Vector3(0.35f, 0f, 0f);
-        
-        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position + offsetIzq, Quaternion.identity);
-        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position + offsetDer, Quaternion.identity);
+
+        // En Nivel 2+ ambos disparos van dirigidos al jugador; en N1, rectos.
+        Quaternion rotIzq = RotacionHaciaJugador(origen.position + offsetIzq);
+        Quaternion rotDer = RotacionHaciaJugador(origen.position + offsetDer);
+
+        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position + offsetIzq, rotIzq);
+        PoolObjetos.Crear(PrefabProyectilEnemigo, origen.position + offsetDer, rotDer);
     }
 }

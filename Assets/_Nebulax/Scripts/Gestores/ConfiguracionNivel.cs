@@ -69,4 +69,32 @@ public static class ConfiguracionNivel
     {
         get { return Nivel >= 2; }
     }
+
+    /// <summary>
+    /// Si es true, los enemigos normales se comportan de forma más "inteligente"
+    /// y ofensiva: persiguen horizontalmente al jugador y disparan dirigido
+    /// hacia su posición (no solo recto). Activo desde el Nivel 2.
+    /// </summary>
+    public static bool EnemigosInteligentes
+    {
+        get { return Nivel >= 2; }
+    }
+
+    /// <summary>
+    /// Factor sobre el intervalo de disparo de los enemigos (menor que 1 =
+    /// disparan más seguido = más ofensivos). N1=1.0, N2=0.7, etc.
+    /// </summary>
+    public static float FactorCadenciaEnemigos
+    {
+        get { return Mathf.Max(0.4f, 1f - 0.3f * PasosExtra); }
+    }
+
+    /// <summary>
+    /// Velocidad de persecución horizontal hacia el jugador (unidades/seg).
+    /// 0 en Nivel 1 (sin persecución). Crece con el nivel.
+    /// </summary>
+    public static float VelocidadPersecucion
+    {
+        get { return EnemigosInteligentes ? (1.2f + 0.4f * (PasosExtra - 1)) : 0f; }
+    }
 }

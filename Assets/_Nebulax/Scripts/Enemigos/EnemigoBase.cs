@@ -69,10 +69,14 @@ public class EnemigoBase : MonoBehaviour
     /// Calcula vida y velocidad efectivas según los factores de dificultad del
     /// nivel actual. En el Nivel 1 (factores 1.0) equivale a los valores base.
     /// </summary>
+    private float intervaloDisparoEfectivo;
+
     private void AplicarFactoresDeNivel()
     {
         vidaMaximaEfectiva = Mathf.Max(1, Mathf.RoundToInt(vidaMaxima * FactorVidaNivel));
         velocidadEfectiva = velocidadMovimiento * ConfiguracionNivel.FactorVelocidadEnemigos;
+        // Cadencia de disparo más alta en niveles avanzados (más ofensivos).
+        intervaloDisparoEfectivo = Mathf.Max(0.25f, intervaloDisparo * ConfiguracionNivel.FactorCadenciaEnemigos);
     }
 
     protected virtual void Update()
@@ -83,8 +87,78 @@ public class EnemigoBase : MonoBehaviour
         }
 
         MoverEnemigo();
+        PerseguirJugadorSiCorresponde();
         IntentarDisparar();
         DestruirSiSaleDePantalla();
+    }
+
+    /// <summary>
+    /// IA ofensiva del Nivel 2+: desplaza al enemigo horizontalmente hacia el
+    /// jugador (persecución suave). En el Nivel 1 no hace nada.
+    /// </summary>
+    /// <summary>
+    /// Si este enemigo debe perseguir al jugador. El jefe lo desactiva (tiene su
+    /// propio patrón de movimiento de fases).
+    /// </summary>
+    protected virtual bool UsaPersecucion => true;
+
+    protected void PerseguirJugadorSiCorresponde()
+    {
+        if (!UsaPersecucion)
+        {
+            return;
+        }
+
+        float velPers = ConfiguracionNivel.VelocidadPersecucion;
+        if (velPers <= 0f || GestorJuego.Instancia == null)
+        {
+            return;
+        }
+
+        Transform jugador = GestorJuego.Instancia.JugadorTransform;
+        if (jugador == null)
+        {
+            return;
+        }
+
+        float dx = jugador.position.x - transform.position.x;
+        float paso = Mathf.Clamp(dx, -1f, 1f) * velPers * Time.deltaTime;
+        transform.position += new Vector3(paso, 0f, 0f);
+    }
+
+    /// <summary>Posición actual del jugador (o null si no hay).</summary>
+    protected Transform JugadorActual
+    {
+        get { return GestorJuego.Instancia != null ? GestorJuego.Instancia.JugadorTransform : null; }
+    }
+
+    /// <summary>
+    /// Calcula la rotación de un proyectil para que apunte al jugador desde un
+    /// origen. Si no hay jugador o no aplica IA, devuelve identidad (recto).
+    /// </summary>
+    protected Quaternion RotacionHaciaJugador(Vector3 origen)
+    {
+        if (!ConfiguracionNivel.EnemigosInteligentes)
+        {
+            return Quaternion.identity;
+        }
+
+        Transform jugador = JugadorActual;
+        if (jugador == null)
+        {
+            return Quaternion.identity;
+        }
+
+        Vector2 dir = (Vector2)(jugador.position - origen);
+        if (dir.sqrMagnitude < 0.0001f)
+        {
+            return Quaternion.identity;
+        }
+
+        // El proyectil enemigo avanza "hacia abajo" (su -up). Calculamos el
+        // ángulo para orientar ese eje hacia el jugador.
+        float angulo = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
+        return Quaternion.Euler(0f, 0f, angulo);
     }
 
     public void RecibirDaño(int cantidadDaño)
@@ -134,7 +208,7 @@ public class EnemigoBase : MonoBehaviour
             return;
         }
 
-        proximoDisparo = Time.time + intervaloDisparo;
+        proximoDisparo = Time.time + intervaloDisparoEfectivo;
         Transform origen = puntoDisparo != null ? puntoDisparo : transform;
         DispararProyectiles(origen);
         AlDisparar?.Invoke();
@@ -148,7 +222,9 @@ public class EnemigoBase : MonoBehaviour
 
     protected virtual void DispararProyectiles(Transform origen)
     {
-        PoolObjetos.Crear(prefabProyectilEnemigo, origen.position, Quaternion.identity);
+        // En Nivel 2+ el disparo va DIRIGIDO al jugador; en Nivel 1, recto.
+        Quaternion rot = RotacionHaciaJugador(origen.position);
+        PoolObjetos.Crear(prefabProyectilEnemigo, origen.position, rot);
     }
 
     private void DestruirSiSaleDePantalla()

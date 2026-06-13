@@ -13,6 +13,12 @@ public class EnemigoTipoTres : EnemigoBase
         direccionHorizontal = Mathf.Sign(nuevaDireccion == 0f ? 1f : nuevaDireccion);
     }
 
+    protected override void Awake()
+    {
+        base.Awake();
+        explosionFuerte = true;
+    }
+
     protected override void OnEnable()
     {
         base.OnEnable();

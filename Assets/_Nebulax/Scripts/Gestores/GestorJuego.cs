@@ -80,7 +80,7 @@ public class GestorJuego : MonoBehaviour
         }
     }
 
-    public void RegistrarEnemigoDestruido(Vector3 posicion)
+    public void RegistrarEnemigoDestruido(Vector3 posicion, bool esExplosionFuerte = false)
     {
         if (juegoTerminado)
         {
@@ -193,15 +193,10 @@ public class GestorJuego : MonoBehaviour
         }
 
         jefeInvocado = true;
-
-        if (generadorEnemigos != null)
-        {
-            generadorEnemigos.DetenerGeneracion();
-        }
-
+        
+        // Aparece el Jefe (la preparación y sonidos ya se hicieron en ActivarAreaBatallaConPreparacion)
         Vector3 posicion = puntoAparicionJefe != null ? puntoAparicionJefe.position : new Vector3(0f, 6.5f, 0f);
         Instantiate(prefabJefe, posicion, Quaternion.identity);
-        ConfigurarAlertaEnemigoIII(true);
         Debug.Log("[GameManager] ¡Enemigo JEFE invocado!");
     }
 
@@ -293,12 +288,38 @@ public class GestorJuego : MonoBehaviour
         }
 
         yield return new WaitForSeconds(3f);
+        ConfigurarAlertaEnemigoIII(false);
 
         // 4) Aparece la estructura del área de batalla
         if (controladorAreaBatalla != null)
         {
             controladorAreaBatalla.AparecerAreaBatalla();
         }
+
+        // 5) Secuencia del JEFE: Esperar a que las naves Tipo 3 recién creadas desaparezcan
+        float tiempoEsperaMaximo = 10f;
+        float tiempoActual = 0f;
+        while (tiempoActual < tiempoEsperaMaximo)
+        {
+            EnemigoBase[] enemigos = FindObjectsByType<EnemigoBase>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            if (enemigos.Length == 0) break;
+            yield return new WaitForSeconds(0.5f);
+            tiempoActual += 0.5f;
+        }
+
+        // Silencio espacial por 5 segundos exactos como lo pidió el usuario
+        yield return new WaitForSeconds(5f);
+
+        // Sonido que da miedo
+        if (gestorAudio != null)
+        {
+            gestorAudio.ReproducirMiedoJefe();
+        }
+
+        // Breve pausa antes de que irrumpa el jefe
+        yield return new WaitForSeconds(1.5f);
+
+        InvocarJefe();
     }
 
     private void ActualizarUI()

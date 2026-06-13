@@ -292,7 +292,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81331017181877148a4835696bd54bb9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProyectilJugador
+  m_EditorClassIdentifier: Nebulax.Runtime::ProyectilJugador
   velocidad: 9
   "da\xF1o": 50
   limiteSuperior: 7
@@ -307,7 +307,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6482b86c50d3f92458fe54b428b4e1e2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EfectoGlowProyectil
+  m_EditorClassIdentifier: Nebulax.Runtime::EfectoGlowProyectil
   colorNucleo: {r: 0, g: 0.95, b: 1, a: 1}
   colorBorde: {r: 0, g: 0.4, b: 1, a: 1}
   anchoEstela: 0.12

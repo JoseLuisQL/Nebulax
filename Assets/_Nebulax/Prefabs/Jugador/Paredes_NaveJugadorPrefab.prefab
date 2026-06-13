@@ -342,7 +342,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba48286e9e2fc8f4c8e169b06bcb9b9a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimitesPantalla
+  m_EditorClassIdentifier: Nebulax.Runtime::LimitesPantalla
   camaraPrincipal: {fileID: 0}
   margenHorizontal: 0.45
   margenVertical: 0.45
@@ -357,7 +357,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c78e596041d59cc469a5a1736ca68cd0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ControladorNaveJugador
+  m_EditorClassIdentifier: Nebulax.Runtime::ControladorNaveJugador
   velocidadMovimiento: 6
   limitesPantalla: {fileID: 4727313481184193585}
 --- !u!114 &3026448816932204031
@@ -371,7 +371,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d2561e0977a66a40aa5fd7fb399c4b5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VidaNaveJugador
+  m_EditorClassIdentifier: Nebulax.Runtime::VidaNaveJugador
   vidaMaxima: 100
   vidaActual: 100
 --- !u!114 &1582361177246131262
@@ -385,9 +385,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d85d49b50c87194a83faffc734998ee, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DisparoNaveJugador
+  m_EditorClassIdentifier: Nebulax.Runtime::DisparoNaveJugador
   prefabProyectilJugador: {fileID: 8340929792653877172, guid: 0da4b2d15a303ee47901073e6b71384f, type: 3}
   prefabMisilJugador: {fileID: 7200883864827017883, guid: 3c5e8074cbdad994a91773c2dcab85bf, type: 3}
+  prefabMisilRastreador: {fileID: 0}
   puntoDisparoCentral: {fileID: 7030137356521234048}
   puntoDisparoIzquierdo: {fileID: 7080582583655258190}
   puntoDisparoDerecho: {fileID: 2409587190263151104}
@@ -408,7 +409,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76a7fe4828b80e04a897a9ab62ed248c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RegistroEstadoJugador
+  m_EditorClassIdentifier: Nebulax.Runtime::RegistroEstadoJugador
   vidaNaveJugador: {fileID: 3026448816932204031}
   intervaloRegistro: 1
 --- !u!114 &372124861332092449
@@ -422,7 +423,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4680e1dff1079db41a8aaf62bdaf7e57, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EfectoPropulsorNave
+  m_EditorClassIdentifier: Nebulax.Runtime::EfectoPropulsorNave
 --- !u!1 &5381287798700991897
 GameObject:
   m_ObjectHideFlags: 0

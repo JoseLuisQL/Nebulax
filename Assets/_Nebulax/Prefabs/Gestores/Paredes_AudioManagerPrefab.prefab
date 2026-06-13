@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c01b29d4df61744491adbae0959c96d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GestorAudio
+  m_EditorClassIdentifier: Nebulax.Runtime::GestorAudio
   fuenteEfectos: {fileID: 2976985503665651191}
   fuenteAlerta: {fileID: 3515779967013734133}
   sfxDisparoJugador: {fileID: 8300000, guid: b09f082e39ab8274bad87c8255cb5230, type: 3}
@@ -56,7 +56,12 @@ MonoBehaviour:
   sfxMisilJugador: {fileID: 8300000, guid: 37bffad4b73087340931b0022f95dcbd, type: 3}
   sfxGameOver: {fileID: 8300000, guid: bd22b3724b1459f4fb1b635c8befb0e9, type: 3}
   sfxPoder: {fileID: 8300000, guid: 08ac5f8b53adc0843a22f79fa006e278, type: 3}
+  sfxItemRecolectado: {fileID: 0}
+  sfxImpactoEnemigo: {fileID: 0}
+  sfxMisionCumplida: {fileID: 0}
+  sfxDisparoEnemigo: {fileID: 0}
   volumenEfectos: 0.75
+  volumenDisparoEnemigo: 0.45
   volumenAlerta: 0.35
 --- !u!82 &2976985503665651191
 AudioSource:

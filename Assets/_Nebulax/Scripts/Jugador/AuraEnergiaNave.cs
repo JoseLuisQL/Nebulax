@@ -43,16 +43,30 @@ public class AuraEnergiaNave : MonoBehaviour
 
         // El aura "respira"; la amplitud crece con el nivel.
         float energia = Mathf.Clamp01(nivel / 8f);
-        float pulso = 0.5f + 0.5f * Mathf.Sin(t * (3f + energia * 4f));
-        float escala = tamanoBaseHalo * (1f + energia * 0.9f) * Mathf.Lerp(0.92f, 1.12f, pulso);
+        
+        // Multiplicador drástico si el nivel de velocidad es alto (>= 3)
+        float multiplicadorAltaVelocidad = (nivel >= 3) ? 2.5f : 1f;
+
+        float pulso = 0.5f + 0.5f * Mathf.Sin(t * (3f + energia * 4f * multiplicadorAltaVelocidad));
+        float escala = tamanoBaseHalo * (1f + energia * 0.9f) * multiplicadorAltaVelocidad * Mathf.Lerp(0.92f, 1.12f, pulso);
         halo.transform.localScale = Vector3.one * escala;
 
         Color c = halo.color;
-        c.a = Mathf.Lerp(0.0f, 0.55f, energia) * Mathf.Lerp(0.7f, 1f, pulso);
+        // Si el nivel es >= 3, cambiamos a un color más vibrante y menos transparente
+        if (nivel >= 3)
+        {
+            c = new Color(0.1f, 0.9f, 1f); // Cian muy brillante
+            c.a = Mathf.Lerp(0.4f, 0.9f, pulso);
+        }
+        else
+        {
+            c.a = Mathf.Lerp(0.0f, 0.55f, energia) * Mathf.Lerp(0.7f, 1f, pulso);
+        }
         halo.color = c;
 
-        // Rotación lenta del halo para dar vida.
-        halo.transform.Rotate(0f, 0f, (20f + energia * 60f) * Time.deltaTime);
+        // Rotación rápida del halo en niveles altos.
+        float velocidadRotacion = (20f + energia * 60f) * multiplicadorAltaVelocidad;
+        halo.transform.Rotate(0f, 0f, velocidadRotacion * Time.deltaTime);
     }
 
     /// <summary>Sube el nivel del aura y dispara un destello de power-up.</summary>
@@ -73,12 +87,28 @@ public class AuraEnergiaNave : MonoBehaviour
         if (orbital != null)
         {
             var em = orbital.emission;
-            em.rateOverTime = 10f + energia * 60f; // más partículas con más nivel
+            float multiplicadorEmision = (nivel >= 3) ? 3f : 1f;
+            em.rateOverTime = (10f + energia * 60f) * multiplicadorEmision; // más partículas con más nivel
+            
             var main = orbital.main;
-            // Tinte de azul (bajo) a cian/blanco (alto).
-            Color colA = Color.Lerp(new Color(0.3f, 0.7f, 1f), new Color(0.6f, 1f, 1f), energia);
-            Color colB = Color.Lerp(new Color(0.1f, 0.4f, 1f), new Color(0.2f, 0.9f, 1f), energia);
-            main.startColor = new ParticleSystem.MinMaxGradient(colA, colB);
+            if (nivel >= 3)
+            {
+                // Colores dorados/eléctricos para alta velocidad
+                main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.4f, 1f, 1f), new Color(1f, 1f, 1f));
+                
+                var sol = orbital.sizeOverLifetime;
+                sol.sizeMultiplier = 2f; // Partículas más grandes
+            }
+            else
+            {
+                // Tinte de azul (bajo) a cian/blanco (alto).
+                Color colA = Color.Lerp(new Color(0.3f, 0.7f, 1f), new Color(0.6f, 1f, 1f), energia);
+                Color colB = Color.Lerp(new Color(0.1f, 0.4f, 1f), new Color(0.2f, 0.9f, 1f), energia);
+                main.startColor = new ParticleSystem.MinMaxGradient(colA, colB);
+                
+                var sol = orbital.sizeOverLifetime;
+                sol.sizeMultiplier = 1f; // Tamaño normal
+            }
         }
     }
 

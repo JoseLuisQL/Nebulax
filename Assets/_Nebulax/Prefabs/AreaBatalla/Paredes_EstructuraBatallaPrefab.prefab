@@ -105,7 +105,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6ce6898346c8e604aa7d48f69c071a60, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EstructuraBatallaMovimiento
+  m_EditorClassIdentifier: Nebulax.Runtime::EstructuraBatallaMovimiento
   velocidad: 0.35
   limiteInferior: -18
 --- !u!114 &412157309290033103
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dece6f0e9c213284484f9302ff416bd5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DetectorPasoEstructura
+  m_EditorClassIdentifier: Nebulax.Runtime::DetectorPasoEstructura
   proporcionApertura: 0.4
 --- !u!114 &6267248723596619539
 MonoBehaviour:
@@ -132,4 +132,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c792806269cbb2649acb187a5360e9eb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GuiaArcoEstructura
+  m_EditorClassIdentifier: Nebulax.Runtime::GuiaArcoEstructura

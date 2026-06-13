@@ -9,6 +9,7 @@ public class DisparoNaveJugador : MonoBehaviour
 {
     [SerializeField] private GameObject prefabProyectilJugador;
     [SerializeField] private GameObject prefabMisilJugador;
+    [SerializeField] private GameObject prefabMisilRastreador; // Nuevo
     [SerializeField] private Transform puntoDisparoCentral;
     [SerializeField] private Transform puntoDisparoIzquierdo;
     [SerializeField] private Transform puntoDisparoDerecho;
@@ -175,5 +176,71 @@ public class DisparoNaveJugador : MonoBehaviour
 
         Quaternion rotacion = punto.rotation * Quaternion.Euler(0f, 0f, anguloDeg);
         PoolObjetos.Crear(prefab, punto.position, rotacion);
+    }
+
+    public void ActivarEnjambreMisiles()
+    {
+        if (prefabMisilRastreador == null)
+        {
+            prefabMisilRastreador = Resources.Load<GameObject>("MisilRastreadorJugador");
+            
+            if (prefabMisilRastreador == null)
+            {
+                // Fallback si no se pudo cargar: usar el misil normal disparado en abanico
+                for (int i = -2; i <= 2; i++)
+                {
+                    CrearProyectil(prefabMisilJugador, puntoDisparoCentral, i * 15f);
+                }
+                return;
+            }
+        }
+
+        EnemigoBase[] enemigosActivos = FindObjectsByType<EnemigoBase>(FindObjectsSortMode.None);
+        int maxMisiles = 5;
+        int misilesLanzados = 0;
+
+        // Mezclamos un poco para no atacar siempre al mismo
+        System.Random rnd = new System.Random();
+        for (int i = 0; i < enemigosActivos.Length; i++)
+        {
+            int rndIndex = rnd.Next(i, enemigosActivos.Length);
+            EnemigoBase temp = enemigosActivos[i];
+            enemigosActivos[i] = enemigosActivos[rndIndex];
+            enemigosActivos[rndIndex] = temp;
+        }
+
+        foreach (EnemigoBase enemigo in enemigosActivos)
+        {
+            if (enemigo != null && enemigo.gameObject.activeInHierarchy)
+            {
+                // Calcular ángulo de salida disperso para el enjambre
+                float anguloSalida = -30f + (misilesLanzados * 15f);
+                Quaternion rotacion = puntoDisparoCentral.rotation * Quaternion.Euler(0f, 0f, anguloSalida);
+                
+                GameObject misilObj = PoolObjetos.Crear(prefabMisilRastreador, puntoDisparoCentral.position, rotacion);
+                MisilRastreadorJugador rastreador = misilObj.GetComponent<MisilRastreadorJugador>();
+                if (rastreador != null)
+                {
+                    rastreador.AsignarObjetivo(enemigo.transform);
+                }
+
+                misilesLanzados++;
+                if (misilesLanzados >= maxMisiles) break;
+            }
+        }
+
+        // Si no hay enemigos en pantalla, lanzar los misiles rectos de todas formas
+        while (misilesLanzados < maxMisiles)
+        {
+            float anguloSalida = -30f + (misilesLanzados * 15f);
+            Quaternion rotacion = puntoDisparoCentral.rotation * Quaternion.Euler(0f, 0f, anguloSalida);
+            PoolObjetos.Crear(prefabMisilRastreador, puntoDisparoCentral.position, rotacion);
+            misilesLanzados++;
+        }
+
+        if (GestorAudio.Instancia != null)
+        {
+            GestorAudio.Instancia.ReproducirMisilJugador();
+        }
     }
 }

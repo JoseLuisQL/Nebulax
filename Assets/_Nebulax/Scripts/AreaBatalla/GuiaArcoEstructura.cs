@@ -14,6 +14,7 @@ public class GuiaArcoEstructura : MonoBehaviour
     private SpriteRenderer   portalRenderer;
     private SpriteRenderer[] anillosRenderer  = new SpriteRenderer[2];
     private GameObject[]     anillos          = new GameObject[2];
+    private LineRenderer[]   laseres          = new LineRenderer[2];
     private ParticleSystem   psElectrico;
     private ParticleSystem   psDestello;
 
@@ -71,6 +72,7 @@ public class GuiaArcoEstructura : MonoBehaviour
         CrearAnillosConcentricos();
         CrearFlechasChevron();
         CrearParticulasElectricas();
+        CrearLaseresLaterales();
     }
 
     // ── Portal de energía verde semitransparente ─────────────────────────────
@@ -192,6 +194,56 @@ public class GuiaArcoEstructura : MonoBehaviour
         }
     }
 
+    // ── Láseres de advertencia en los costados (vacío de la pantalla) ──────────
+    private void CrearLaseresLaterales()
+    {
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+        Bounds b = sr.sprite.bounds;
+
+        // Los costados del arco:
+        float outerLeftX = b.min.x + 0.5f; // Un poco adentro para que parezca que sale del motor
+        float outerRightX = b.max.x - 0.5f;
+        float centerY = b.center.y;
+
+        // Longitud masiva para salir de la pantalla
+        float laserLength = 20f;
+
+        for (int i = 0; i < 2; i++)
+        {
+            float startX = (i == 0) ? outerLeftX : outerRightX;
+            float endX   = (i == 0) ? outerLeftX - laserLength : outerRightX + laserLength;
+
+            GameObject obj = Hijo("LaserVacio_" + i);
+            obj.transform.localPosition = new Vector3(0f, 0f, 0.5f); // Z atrás del arco
+
+            LineRenderer lr = obj.AddComponent<LineRenderer>();
+            lr.positionCount = 2;
+            lr.useWorldSpace = false; // Espacio local respecto al arco
+            
+            lr.SetPosition(0, new Vector3(startX, centerY, 0));
+            lr.SetPosition(1, new Vector3(endX, centerY, 0));
+
+            // Un láser muy grueso para cubrir el alto del arco y justificar el hitbox mortal
+            float grosorBase = b.size.y * 0.7f;
+            lr.startWidth = grosorBase;
+            lr.endWidth = grosorBase;
+
+            // Material aditivo básico
+            Shader sh = Shader.Find("Legacy Shaders/Particles/Additive") ?? Shader.Find("Particles/Additive");
+            if (sh != null) lr.material = new Material(sh);
+            
+            lr.material.mainTexture = Texture2D.whiteTexture; 
+            
+            lr.startColor = new Color(1f, 0f, 0.1f, 1f);
+            lr.endColor = new Color(1f, 0.2f, 0.3f, 0.8f);
+            
+            lr.sortingOrder = -5; // Atrás de la nave y estructura
+            
+            laseres[i] = lr;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     //  ANIMACIONES
     // ─────────────────────────────────────────────────────────────────────────
@@ -229,6 +281,25 @@ public class GuiaArcoEstructura : MonoBehaviour
             flechas[i].transform.localPosition = new Vector3(
                 xOff[i], aperturaY - aperturaH * 0.5f - 0.3f + bounce, -0.1f);
             Color c = flechaRenderers[i].color; c.a = alpha; flechaRenderers[i].color = c;
+        }
+
+        // Animación intensa de los láseres laterales (pulso letal horizontal)
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        float baseWidth = sr != null ? sr.sprite.bounds.size.y * 0.7f : 1f;
+
+        for (int i = 0; i < 2; i++)
+        {
+            if (laseres[i] == null) continue;
+            
+            // Grosor pulsante masivo
+            float width = Mathf.Lerp(baseWidth * 0.85f, baseWidth * 1.15f, (Mathf.Sin(t * 18f) + 1f) * 0.5f);
+            laseres[i].startWidth = width;
+            laseres[i].endWidth = width;
+
+            // Variación de color láser
+            float alphaLaser = Mathf.Lerp(0.4f, 0.8f, (Mathf.Sin(t * 25f) + 1f) * 0.5f);
+            laseres[i].startColor = new Color(1f, 0.1f, 0.1f, alphaLaser);
+            laseres[i].endColor = new Color(1f, 0f, 0.4f, alphaLaser * 0.5f);
         }
     }
 

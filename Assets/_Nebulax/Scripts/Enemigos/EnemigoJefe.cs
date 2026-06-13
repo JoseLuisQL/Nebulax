@@ -40,6 +40,7 @@ public class EnemigoJefe : EnemigoBase
     protected override void Awake()
     {
         base.Awake();
+        explosionFuerte = true;
         centroX = transform.position.x;
     }
 

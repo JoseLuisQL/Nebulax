@@ -104,7 +104,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fa5ad29cd790a5a4b817bc8ce1915ce9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ControladorExplosion
+  m_EditorClassIdentifier: Nebulax.Runtime::ControladorExplosion
   spriteRenderer: {fileID: 7663798453802926893}
   framesExplosion:
   - {fileID: 8369009829041163507, guid: 111f9818f0c53214d838c57ba854aa14, type: 3}

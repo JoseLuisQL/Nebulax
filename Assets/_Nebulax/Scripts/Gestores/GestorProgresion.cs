@@ -20,10 +20,10 @@ public class GestorProgresion : MonoBehaviour
     [SerializeField] private int nivelMaximo = 10;
 
     [Header("Incremento de habilidades (jugador) por nivel")]
-    [Tooltip("Factor multiplicativo de velocidad de la nave por nivel (1.10 = +10%).")]
-    [SerializeField] private float factorVelocidadNave = 1.10f;
-    [Tooltip("Factor de mejora de cadencia de disparo por nivel (0.92 = 8% más rápido).")]
-    [SerializeField] private float factorCadenciaDisparo = 0.92f;
+    [Tooltip("Factor multiplicativo de velocidad de la nave por nivel (1.25 = +25%).")]
+    [SerializeField] private float factorVelocidadNave = 1.25f;
+    [Tooltip("Factor de mejora de cadencia de disparo por nivel (0.80 = 20% más rápido).")]
+    [SerializeField] private float factorCadenciaDisparo = 0.80f;
 
     [Header("Incremento de dificultad (enemigos) por nivel")]
     [SerializeField] private float factorDificultadEnemigos = 1.08f;
@@ -102,6 +102,11 @@ public class GestorProgresion : MonoBehaviour
             generador.AumentarDificultad(factorDificultadEnemigos);
         }
 
+        if (GestorAudio.Instancia != null)
+        {
+            GestorAudio.Instancia.ReproducirPoder();
+        }
+
         Debug.Log("[Progresion] ¡Nivel " + nivelActual + "! Nave mas veloz y mejor cadencia; enemigos mas dificiles.");
 
         // 3) Reflejar en el HUD si existe
@@ -111,11 +116,6 @@ public class GestorProgresion : MonoBehaviour
             ui.ActualizarNivel(nivelActual);
         }
 
-        // 4) Invocar al jefe al alcanzar el nivel objetivo (una sola vez).
-        if (!jefeInvocado && nivelInvocaJefe > 0 && nivelActual >= nivelInvocaJefe && GestorJuego.Instancia != null)
-        {
-            jefeInvocado = true;
-            GestorJuego.Instancia.InvocarJefe();
-        }
+        // (El jefe ya no se invoca por recolección de items, sino por tiempo/eventos en GestorJuego)
     }
 }

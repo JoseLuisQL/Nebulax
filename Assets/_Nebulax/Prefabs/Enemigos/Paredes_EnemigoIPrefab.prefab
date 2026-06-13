@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 6938676154854667154}
   - component: {fileID: 2265682386346694426}
   - component: {fileID: 7887533656136040782}
+  - component: {fileID: 5207583955889528526}
   m_Layer: 0
   m_Name: Paredes_EnemigoIPrefab
   m_TagString: Enemy
@@ -59,14 +60,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7980141837872904154}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: -0.00000004371139}
+  m_LocalRotation: {x: 0, y: 0, z: -1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.23, y: 0.23, z: 0.23}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 868545134034118348}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -180}
 --- !u!212 &3261134858138192373
 SpriteRenderer:
   serializedVersion: 2
@@ -338,7 +339,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35ef1d40ba25ea74d8c75d5441d71eed, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemigoTipoUno
+  m_EditorClassIdentifier: Nebulax.Runtime::EnemigoTipoUno
   vidaMaxima: 40
   "da\xF1oAlJugador": 25
   velocidadMovimiento: 1
@@ -350,3 +351,20 @@ MonoBehaviour:
   prefabPoderTripleDisparo: {fileID: 5426213467510752607, guid: c89dbcb8684f15a41a7d65b62c3992f4, type: 3}
   probabilidadSoltarPoder: 0.12
   limiteInferior: -7
+--- !u!114 &5207583955889528526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7980141837872904154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff2bb6bebc514f1aaf9ee91858d803ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Nebulax.Runtime::AnimadorEnemigo
+  amplitudPulso: 0.025
+  frecuenciaPulso: 2.5
+  colorDestelloDisparo: {r: 1, g: 0.92, b: 0.55, a: 1}
+  "duracionFlashDa\xF1o": 0.14
+  "colorFlashDa\xF1o": {r: 1, g: 0.32, b: 0.32, a: 1}

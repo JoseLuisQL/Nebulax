@@ -7,6 +7,18 @@ public class EnemigoTipoDos : EnemigoBase
 {
     [SerializeField] private float amplitudZigzag = 1.6f;
     [SerializeField] private float frecuenciaZigzag = 3f;
+    private float desplazamientoHorizontalBase;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        explosionFuerte = true;
+    }
+
+    private void Start()
+    {
+        desplazamientoHorizontalBase = transform.position.x;
+    }
 
     protected override void MoverEnemigo()
     {

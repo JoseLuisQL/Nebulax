@@ -10,7 +10,9 @@ public class ControladorPoder : MonoBehaviour
     public enum TipoPoder
     {
         DobleDisparo,
-        TripleDisparo
+        TripleDisparo,
+        Escudo,
+        EnjambreMisiles
     }
 
     [SerializeField] private TipoPoder tipoPoder = TipoPoder.DobleDisparo;
@@ -35,16 +37,23 @@ public class ControladorPoder : MonoBehaviour
         }
 
         DisparoNaveJugador disparo = otro.GetComponent<DisparoNaveJugador>();
-        if (disparo != null)
+        VidaNaveJugador vida = otro.GetComponent<VidaNaveJugador>();
+        
+        if (tipoPoder == TipoPoder.DobleDisparo && disparo != null)
         {
-            if (tipoPoder == TipoPoder.DobleDisparo)
-            {
-                disparo.ActivarDobleDisparo();
-            }
-            else
-            {
-                disparo.ActivarTripleDisparo();
-            }
+            disparo.ActivarDobleDisparo();
+        }
+        else if (tipoPoder == TipoPoder.TripleDisparo && disparo != null)
+        {
+            disparo.ActivarTripleDisparo();
+        }
+        else if (tipoPoder == TipoPoder.Escudo && vida != null)
+        {
+            vida.ActivarEscudo(8f);
+        }
+        else if (tipoPoder == TipoPoder.EnjambreMisiles && disparo != null)
+        {
+            disparo.ActivarEnjambreMisiles();
         }
 
         if (GestorAudio.Instancia != null)

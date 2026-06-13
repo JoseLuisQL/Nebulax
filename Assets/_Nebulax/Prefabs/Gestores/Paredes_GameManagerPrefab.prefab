@@ -45,13 +45,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01a7e73ccbc95fe4aaaca7adefb1e1ca, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GestorJuego
+  m_EditorClassIdentifier: Nebulax.Runtime::GestorJuego
   vidaJugador: {fileID: 0}
   gestorUI: {fileID: 0}
   gestorAudio: {fileID: 0}
   generadorEnemigos: {fileID: 6643116820758579011}
   controladorAreaBatalla: {fileID: 8451713921390884428}
   prefabExplosion: {fileID: 6326324159106928206, guid: 68c07bc0465dd5247b5f9badf4875c96, type: 3}
+  prefabJefe: {fileID: 0}
+  puntoAparicionJefe: {fileID: 0}
 --- !u!114 &6643116820758579011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,7 +65,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3376dc2fc7791b742b583db46fc4fdb6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GeneradorEnemigos
+  m_EditorClassIdentifier: Nebulax.Runtime::GeneradorEnemigos
   prefabEnemigoTipoUno: {fileID: 7980141837872904154, guid: b61ddcd577d965540abcf3c7fb18f4da, type: 3}
   prefabEnemigoTipoDos: {fileID: 3759643426368112999, guid: 0c79bd551eb498c41ac41002df80de41, type: 3}
   prefabEnemigoTipoTres: {fileID: 6326653804764552019, guid: c5cd730c50e0cb6499ae4d76658e42aa, type: 3}
@@ -82,7 +84,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce857267f41411b4d820997b8fdb5863, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ControladorAreaBatalla
+  m_EditorClassIdentifier: Nebulax.Runtime::ControladorAreaBatalla
   prefabAreaBatalla: {fileID: 112476635837411818, guid: 02b4ada3198f8ac41b7a387b0045ff76, type: 3}
   puntoAparicion: {fileID: 0}
   aparecioArea: 0

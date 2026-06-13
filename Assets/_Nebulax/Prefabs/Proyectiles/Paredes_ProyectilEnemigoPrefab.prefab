@@ -604,7 +604,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 80
+    maxNumParticles: 24
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -870,7 +870,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 50
+      scalar: 18
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -5139,7 +5139,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cf3ef761aa65624c9f1dc9f50ca39f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ProyectilEnemigo
+  m_EditorClassIdentifier: Nebulax.Runtime::ProyectilEnemigo
   velocidad: 2.8
   "da\xF1o": 15
   limiteInferior: -7
@@ -5154,7 +5154,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6482b86c50d3f92458fe54b428b4e1e2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EfectoGlowProyectil
+  m_EditorClassIdentifier: Nebulax.Runtime::EfectoGlowProyectil
   colorNucleo: {r: 1, g: 0.45, b: 0.05, a: 1}
   colorBorde: {r: 1, g: 0.1, b: 0, a: 1}
   anchoEstela: 0.1

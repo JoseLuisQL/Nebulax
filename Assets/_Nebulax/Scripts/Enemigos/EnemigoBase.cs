@@ -19,6 +19,7 @@ public class EnemigoBase : MonoBehaviour
     [SerializeField] private float probabilidadSoltarPoder = 0.12f;
     [SerializeField] private float limiteInferior = -7f;
 
+    protected bool explosionFuerte = false;
     private int vidaActual;
     private float proximoDisparo;
     private bool destruido;
@@ -172,7 +173,7 @@ public class EnemigoBase : MonoBehaviour
             SoltarPoderSiCorresponde();
             if (GestorJuego.Instancia != null)
             {
-                GestorJuego.Instancia.RegistrarEnemigoDestruido(transform.position);
+                GestorJuego.Instancia.RegistrarEnemigoDestruido(transform.position, explosionFuerte);
             }
         }
 
@@ -181,15 +182,27 @@ public class EnemigoBase : MonoBehaviour
 
     private void SoltarPoderSiCorresponde()
     {
-        if (Random.value > probabilidadSoltarPoder)
+        // 1. Probabilidad de soltar poderes base (Doble/Triple Disparo)
+        if (Random.value <= probabilidadSoltarPoder)
         {
-            return;
+            GameObject prefabPoder = Random.value < 0.5f ? prefabPoderDobleDisparo : prefabPoderTripleDisparo;
+            if (prefabPoder != null)
+            {
+                Instantiate(prefabPoder, transform.position, Quaternion.identity);
+                return; // Solo un ítem por enemigo
+            }
         }
 
-        GameObject prefabPoder = Random.value < 0.5f ? prefabPoderDobleDisparo : prefabPoderTripleDisparo;
-        if (prefabPoder != null)
+        // 2. Probabilidad rara de soltar los nuevos ítems (Escudo o Misiles) (5%)
+        float probRaros = 0.05f;
+        if (Random.value <= probRaros)
         {
-            Instantiate(prefabPoder, transform.position, Quaternion.identity);
+            string pathRaro = Random.value < 0.5f ? "Item_PoderEscudo" : "Item_PoderEnjambreMisiles";
+            GameObject prefabRaro = Resources.Load<GameObject>(pathRaro);
+            if (prefabRaro != null)
+            {
+                Instantiate(prefabRaro, transform.position, Quaternion.identity);
+            }
         }
     }
 }

@@ -35,7 +35,13 @@ public class GestorMenuPrincipal : MonoBehaviour
             hudJuego.SetActive(true);
         }
 
-        // 4. Ocultar todo el menú principal para revelar el juego
+        // 4. Iniciar la música de fondo
+        if (GestorAudio.Instancia != null)
+        {
+            GestorAudio.Instancia.IniciarMusica();
+        }
+
+        // 5. Ocultar todo el menú principal para revelar el juego
         gameObject.SetActive(false);
     }
 }

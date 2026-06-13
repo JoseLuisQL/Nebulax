@@ -56,12 +56,106 @@ public class GestorUI : MonoBehaviour
                 }
             }
         }
+        
+        AsegurarTextosUI();
 
         MostrarAlertaEnemigoIII(false);
         if (imagenGameOver != null) imagenGameOver.SetActive(false);
 
         ActualizarVida(100);
         ActualizarEnemigosDestruidos(0);
+        ActualizarItems(0);
+        ActualizarNivel(1);
+    }
+
+    private void AsegurarTextosUI()
+    {
+        // En lugar de usar el Canvas root, usamos hudJuego para que solo se vea DURANTE el juego, no en el menú.
+        Transform padreTexto = hudJuego != null ? hudJuego.transform : FindFirstObjectByType<Canvas>()?.transform;
+
+        // Si no están asignados, los creamos dinámicamente
+        if (textoItems == null && textoItemsTMP == null && padreTexto != null)
+        {
+            textoItems = CrearTextoDinamico("TextoItemsDinamico", new Vector2(-20, -20), TextAnchor.UpperRight, padreTexto);
+        }
+        if (textoNivel == null && textoNivelTMP == null && padreTexto != null)
+        {
+            textoNivel = CrearTextoDinamico("TextoNivelDinamico", new Vector2(-20, -65), TextAnchor.UpperRight, padreTexto);
+        }
+    }
+
+    private Text CrearTextoDinamico(string nombre, Vector2 posicionAnclada, TextAnchor alineacion, Transform padre)
+    {
+        GameObject go = new GameObject(nombre);
+        go.transform.SetParent(padre, false);
+
+        // 1. Crear un fondo de Panel Sci-Fi profesional
+        Image bg = go.AddComponent<Image>();
+        bg.color = new Color(0.02f, 0.08f, 0.2f, 0.85f); // Azul muy oscuro semi-transparente
+        
+        // Borde del panel
+        Outline outlineBg = go.AddComponent<Outline>();
+        outlineBg.effectColor = new Color(0f, 0.6f, 1f, 0.6f); // Cian brillante
+        outlineBg.effectDistance = new Vector2(2, -2);
+
+        // 2. Crear el objeto hijo para el Texto
+        GameObject textGo = new GameObject("Text");
+        textGo.transform.SetParent(go.transform, false);
+
+        Text txt = textGo.AddComponent<Text>();
+        
+        // Usar la fuente de otro texto existente
+        if (textoVidaJugador != null)
+        {
+            txt.font = textoVidaJugador.font;
+        }
+        else
+        {
+            txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+        }
+        
+        txt.fontSize = 20;
+        txt.fontStyle = FontStyle.Bold;
+        txt.color = Color.white; // Texto blanco puro
+        txt.alignment = TextAnchor.MiddleCenter; // Centrado dentro de su panel
+        txt.horizontalOverflow = HorizontalWrapMode.Overflow;
+        txt.verticalOverflow = VerticalWrapMode.Overflow;
+
+        // Añadir resplandor cian al texto
+        Shadow shadow = textGo.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0f, 0.8f, 1f, 0.8f);
+        shadow.effectDistance = new Vector2(1, -1);
+
+        // Posicionar el texto para que llene el panel
+        RectTransform textRt = textGo.GetComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.sizeDelta = Vector2.zero;
+        textRt.anchoredPosition = Vector2.zero;
+
+        // Configurar el panel padre (tamaño y anclaje)
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(300, 35);
+        
+        if (alineacion == TextAnchor.UpperRight)
+        {
+            rt.anchorMin = new Vector2(1, 1);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.pivot = new Vector2(1, 1);
+            rt.anchoredPosition = posicionAnclada;
+        }
+        else if (alineacion == TextAnchor.UpperLeft)
+        {
+            rt.anchorMin = new Vector2(0, 1);
+            rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 1);
+            rt.anchoredPosition = posicionAnclada;
+        }
+
+        go.SetActive(true);
+        textGo.SetActive(true);
+
+        return txt;
     }
 
     public void ActualizarVida(int porcentajeVida)
@@ -84,12 +178,12 @@ public class GestorUI : MonoBehaviour
 
     public void ActualizarItems(int cantidad)
     {
-        AsignarTexto(textoItemsTMP, textoItems, "Items: " + Mathf.Max(0, cantidad));
+        AsignarTexto(textoItemsTMP, textoItems, "Items Recolectados: " + Mathf.Max(0, cantidad));
     }
 
     public void ActualizarNivel(int nivel)
     {
-        AsignarTexto(textoNivelTMP, textoNivel, "Nivel " + Mathf.Max(1, nivel));
+        AsignarTexto(textoNivelTMP, textoNivel, "Velocidad: Nivel " + Mathf.Max(1, nivel));
     }
 
     public void MostrarAlertaEnemigoIII(bool visible)

@@ -20,6 +20,8 @@ public class GestorAudio : MonoBehaviour
     [SerializeField] private AudioClip sfxImpactoEnemigo;
     [SerializeField] private AudioClip sfxMisionCumplida;
     [SerializeField] private AudioClip sfxDisparoEnemigo;
+    [SerializeField] private AudioClip sfxMiedoJefe;
+    [SerializeField] private AudioClip sfxExplosionFuerte;
     [SerializeField] private float volumenEfectos = 0.75f;
     [SerializeField] private float volumenDisparoEnemigo = 0.45f;
     [SerializeField] private float volumenAlerta = 0.35f;
@@ -52,6 +54,27 @@ public class GestorAudio : MonoBehaviour
         fuenteAlerta.playOnAwake = false;
         fuenteAlerta.loop = true;
         fuenteAlerta.volume = volumenAlerta;
+
+        // Desactivar reproducción automática de la música
+        AudioSource[] sources = GetComponents<AudioSource>();
+        foreach (var src in sources)
+        {
+            src.playOnAwake = false;
+            if (src.isPlaying) src.Stop();
+        }
+    }
+
+    public void IniciarMusica()
+    {
+        AudioSource[] sources = GetComponents<AudioSource>();
+        foreach (var src in sources)
+        {
+            if (src.loop && src != fuenteAlerta)
+            {
+                src.Play();
+                break;
+            }
+        }
     }
 
     public void ReproducirDisparoJugador()
@@ -77,6 +100,40 @@ public class GestorAudio : MonoBehaviour
     public void ReproducirPoder()
     {
         ReproducirClip(sfxPoder);
+    }
+
+    public void ReproducirMiedoJefe()
+    {
+        if (sfxMiedoJefe != null)
+        {
+            ReproducirClip(sfxMiedoJefe);
+        }
+        else
+        {
+            if (sfxGameOver != null)
+            {
+                fuenteEfectos.pitch = 0.6f;
+                fuenteEfectos.PlayOneShot(sfxGameOver, volumenEfectos);
+                Invoke(nameof(RestaurarPitch), 3f);
+            }
+        }
+    }
+
+    private void RestaurarPitch()
+    {
+        if (fuenteEfectos != null) fuenteEfectos.pitch = 1f;
+    }
+
+    public void ReproducirExplosionFuerte()
+    {
+        if (sfxExplosionFuerte != null)
+        {
+            ReproducirClip(sfxExplosionFuerte);
+        }
+        else
+        {
+            ReproducirClip(sfxDestruccionEnemigo);
+        }
     }
 
     private float proximoSfxDisparoEnemigo;

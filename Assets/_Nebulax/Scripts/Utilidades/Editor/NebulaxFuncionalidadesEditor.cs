@@ -79,7 +79,7 @@ public static class NebulaxFuncionalidadesEditor
     // ── Coleccionables ─────────────────────────────────────────────────────────
     private static GameObject CrearPrefabColeccionable(string nombre, int tipoEnum, Color color)
     {
-        Sprite sprite = GenerarSpriteRombo(nombre, color);
+        Sprite sprite = GenerarSpriteGema(nombre, color);
 
         GameObject go = new GameObject("Coleccionable" + nombre);
         go.tag = "PowerUp"; // tag existente seguro; "Collectible" también disponible
@@ -96,10 +96,15 @@ public static class NebulaxFuncionalidadesEditor
 
         CircleCollider2D col = go.AddComponent<CircleCollider2D>();
         col.isTrigger = true;
-        col.radius = 0.6f;
+        col.radius = 0.7f;
 
         Coleccionable comp = go.AddComponent<Coleccionable>();
         SetEnum(comp, "tipo", tipoEnum);
+
+        // Efectos visuales profesionales (halo, chispas, estela).
+        EfectoColeccionable efecto = go.AddComponent<EfectoColeccionable>();
+        SetColor(efecto, "colorNucleo", Color.Lerp(color, Color.white, 0.4f));
+        SetColor(efecto, "colorBorde", color);
 
         string ruta = Raiz + "/Prefabs/Coleccionables/Paredes_Coleccionable" + nombre + "Prefab.prefab";
         GameObject prefab = PrefabUtility.SaveAsPrefabAsset(go, ruta);
@@ -257,26 +262,51 @@ public static class NebulaxFuncionalidadesEditor
         }
     }
 
-    // ── Generación de sprite por código (textura + material implícito) ─────────
-    private static Sprite GenerarSpriteRombo(string nombre, Color color)
+    // ── Gema facetada realista (cristal con caras, brillo y borde) ─────────────
+    private static Sprite GenerarSpriteGema(string nombre, Color color)
     {
         string ruta = Raiz + "/Arte/Sprites/Coleccionables/" + nombre + ".png";
-        int size = 64;
+        int size = 128;
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         Vector2 centro = new Vector2(size / 2f, size / 2f);
+        float r = size * 0.44f;
+
+        Color claro = Color.Lerp(color, Color.white, 0.7f);
+        Color oscuro = Color.Lerp(color, Color.black, 0.45f);
+
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
-                // Rombo: |dx| + |dy| <= r
-                float dx = Mathf.Abs(x - centro.x);
-                float dy = Mathf.Abs(y - centro.y);
-                float r = size * 0.42f;
-                float d = dx + dy;
-                if (d <= r)
+                float dx = x - centro.x;
+                float dy = y - centro.y;
+                // Forma de gema hexagonal alargada (diamante con hombros).
+                float formaDiamante = Mathf.Abs(dx) / (r * 0.7f) + Mathf.Abs(dy) / r;
+                if (formaDiamante <= 1f)
                 {
-                    float brillo = Mathf.Clamp01(1f - d / r);
-                    Color c = Color.Lerp(color, Color.white, brillo * 0.6f);
+                    // Facetas: dividimos en cuadrantes con tono distinto para dar
+                    // sensación de caras talladas.
+                    bool arriba = dy >= 0f;
+                    bool derecha = dx >= 0f;
+                    float faceta = (arriba ? 0.62f : 0.38f) + (derecha ? 0.10f : -0.08f);
+
+                    // Línea de talla central (cintura del diamante).
+                    float talla = Mathf.Abs(dy) < 2.2f ? 0.35f : 1f;
+
+                    Color c = Color.Lerp(oscuro, claro, Mathf.Clamp01(faceta));
+                    c = Color.Lerp(c, color, 0.25f);
+                    c *= talla;
+
+                    // Reflejo especular brillante arriba-izquierda.
+                    float spec = Mathf.Clamp01(1f - (new Vector2(dx + r * 0.25f, dy - r * 0.35f).magnitude) / (r * 0.5f));
+                    c = Color.Lerp(c, Color.white, spec * 0.7f);
+
+                    // Borde más definido.
+                    if (formaDiamante > 0.92f)
+                    {
+                        c = Color.Lerp(c, claro, 0.5f);
+                    }
+
                     c.a = 1f;
                     tex.SetPixel(x, y, c);
                 }
@@ -289,15 +319,17 @@ public static class NebulaxFuncionalidadesEditor
         tex.Apply();
 
         File.WriteAllBytes(RutaFs(ruta), tex.EncodeToPNG());
-        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceUpdate);
+        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
         TextureImporter ti = AssetImporter.GetAtPath(ruta) as TextureImporter;
         if (ti != null)
         {
             ti.textureType = TextureImporterType.Sprite;
             ti.spriteImportMode = SpriteImportMode.Single;
             ti.alphaIsTransparency = true;
+            ti.filterMode = FilterMode.Bilinear;
             ti.SaveAndReimport();
         }
+        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport);
         return AssetDatabase.LoadAssetAtPath<Sprite>(ruta);
     }
 
@@ -340,5 +372,12 @@ public static class NebulaxFuncionalidadesEditor
         SerializedObject so = new SerializedObject(objeto);
         SerializedProperty sp = so.FindProperty(propiedad);
         if (sp != null) { sp.enumValueIndex = valor; so.ApplyModifiedPropertiesWithoutUndo(); }
+    }
+
+    private static void SetColor(Object objeto, string propiedad, Color valor)
+    {
+        SerializedObject so = new SerializedObject(objeto);
+        SerializedProperty sp = so.FindProperty(propiedad);
+        if (sp != null) { sp.colorValue = valor; so.ApplyModifiedPropertiesWithoutUndo(); }
     }
 }

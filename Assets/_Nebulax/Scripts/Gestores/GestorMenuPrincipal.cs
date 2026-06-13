@@ -9,6 +9,27 @@ public class GestorMenuPrincipal : MonoBehaviour
     public MonoBehaviour generadorEnemigos;
     public GameObject hudJuego;
 
+    /// <summary>
+    /// Bandera de transición entre escenas. Cuando una escena anterior solicita
+    /// arrancar jugando directamente (p. ej. al pulsar "Siguiente Nivel" tras
+    /// derrotar al jefe), pone esto en true antes de cargar la nueva escena.
+    /// El menú la consulta en <see cref="Start"/> y, de estar activa, inicia la
+    /// partida automáticamente sin mostrar el menú. Es estática para sobrevivir
+    /// al cambio de escena y se resetea al consumirla.
+    /// </summary>
+    public static bool AutoIniciarAlCargar;
+
+    private void Start()
+    {
+        // Auto-inicio solicitado por la escena anterior (transición de nivel).
+        // Si no se solicitó, el menú se comporta como siempre (espera al botón).
+        if (AutoIniciarAlCargar)
+        {
+            AutoIniciarAlCargar = false; // Consumir la bandera (un solo uso).
+            IniciarPartida();
+        }
+    }
+
     public void IniciarPartida()
     {
         if (hudJuego == null)

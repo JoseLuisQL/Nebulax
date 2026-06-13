@@ -142,6 +142,11 @@ public class PanelMisionCumplida : MonoBehaviour
     {
         Time.timeScale = 1f;
 
+        // Solicitar que la siguiente escena arranque jugando directamente, sin
+        // mostrar de nuevo el menú principal (que existe en la escena por ser
+        // una copia de la principal). El GestorMenuPrincipal consume la bandera.
+        GestorMenuPrincipal.AutoIniciarAlCargar = true;
+
         string objetivo = ControladorNivel2.NombreEscena; // "EscenaNivel2"
 
         // 1) Intento por nombre (requiere que EscenaNivel2 esté en Build Settings).

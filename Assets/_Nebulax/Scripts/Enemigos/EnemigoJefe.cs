@@ -37,6 +37,10 @@ public class EnemigoJefe : EnemigoBase
     private int faseActual = 1;
     private float impulsoFase; // animación al cambiar de fase
 
+    // El jefe usa su propio factor de vida por nivel (más alto que el de los
+    // enemigos normales). En el Nivel 1 vale 1.0 -> vida base sin cambios.
+    protected override float FactorVidaNivel => ConfiguracionNivel.FactorVidaJefe;
+
     protected override void Awake()
     {
         base.Awake();
@@ -144,17 +148,22 @@ public class EnemigoJefe : EnemigoBase
             return;
         }
 
-        // El patrón de disparo se intensifica con la fase.
+        // El patrón de disparo se intensifica con la fase. En el Nivel 2 el jefe
+        // es más agresivo: abanicos más densos y amplios en cada fase.
+        bool agresivo = ConfiguracionNivel.JefeAgresivo;
         switch (faseActual)
         {
             case 1:
-                DispararAbanico(origen, 1, 0f);
+                if (agresivo) DispararAbanico(origen, 3, 12f);
+                else DispararAbanico(origen, 1, 0f);
                 break;
             case 2:
-                DispararAbanico(origen, 3, 12f);
+                if (agresivo) DispararAbanico(origen, 5, 14f);
+                else DispararAbanico(origen, 3, 12f);
                 break;
             default:
-                DispararAbanico(origen, 5, 14f);
+                if (agresivo) DispararAbanico(origen, 7, 16f);
+                else DispararAbanico(origen, 5, 14f);
                 break;
         }
     }

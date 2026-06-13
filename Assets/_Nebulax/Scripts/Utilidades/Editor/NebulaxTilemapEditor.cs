@@ -464,11 +464,30 @@ public static class NebulaxTilemapEditor
             tmMuros.SetTile(new Vector3Int(ColMax, y, 0), tileMuro);
         }
 
-        // 3) Decoración: acentos de energía repartidos por el nivel.
-        for (int x = ColMin + 2; x <= ColMax - 2; x += 3)
+        // 2b) Obstáculos internos: islas de muro que dan personalidad al Nivel 2
+        // y lo distinguen del marco simple del Nivel 1. Se colocan simétricas y
+        // alejadas de los bordes para no bloquear la jugabilidad.
+        int[] islasX = { ColMin + 4, 0, ColMax - 4 };
+        foreach (int ix in islasX)
+        {
+            // Bloque 2x2 en la zona superior y otro espejado en la inferior.
+            tmMuros.SetTile(new Vector3Int(ix, FilaMax - 3, 0), tileMuro);
+            tmMuros.SetTile(new Vector3Int(ix + 1, FilaMax - 3, 0), tileMuro);
+            tmMuros.SetTile(new Vector3Int(ix, FilaMin + 3, 0), tileMuro);
+            tmMuros.SetTile(new Vector3Int(ix + 1, FilaMin + 3, 0), tileMuro);
+        }
+
+        // 3) Decoración: acentos de energía repartidos por el nivel (más densos
+        // que en el marco simple original).
+        for (int x = ColMin + 2; x <= ColMax - 2; x += 2)
         {
             tmDeco.SetTile(new Vector3Int(x, FilaMax - 2, 0), tileDeco);
             tmDeco.SetTile(new Vector3Int(x + 1, FilaMin + 2, 0), tileDeco);
+            // Acento central en columnas alternas para reforzar la decoración.
+            if (x % 4 == 0)
+            {
+                tmDeco.SetTile(new Vector3Int(x, 0, 0), tileDeco);
+            }
         }
 
         // Controlador de nivel (transiciones).

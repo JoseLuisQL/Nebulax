@@ -24,12 +24,23 @@ public class EnemigoBase : MonoBehaviour
     private float proximoDisparo;
     private bool destruido;
 
-    protected float VelocidadMovimiento => velocidadMovimiento;
+    // Valores efectivos tras aplicar los factores de dificultad del nivel actual
+    // (ConfiguracionNivel). En el Nivel 1 los factores son 1.0 -> sin cambios.
+    private float velocidadEfectiva;
+    private int vidaMaximaEfectiva;
+
+    protected float VelocidadMovimiento => velocidadEfectiva;
     protected Vector3 PosicionInicial { get; private set; }
     protected GameObject PrefabProyectilEnemigo => prefabProyectilEnemigo;
 
+    /// <summary>
+    /// Factor de vida aplicado a este enemigo según el nivel. La base usa el de
+    /// enemigos normales; el jefe lo sobrescribe con el suyo.
+    /// </summary>
+    protected virtual float FactorVidaNivel => ConfiguracionNivel.FactorVidaEnemigos;
+
     /// <summary>Porcentaje de vida actual (0..1). Útil para fases del jefe.</summary>
-    public float PorcentajeVida => vidaMaxima <= 0 ? 0f : Mathf.Clamp01(vidaActual / (float)vidaMaxima);
+    public float PorcentajeVida => vidaMaximaEfectiva <= 0 ? 0f : Mathf.Clamp01(vidaActual / (float)vidaMaximaEfectiva);
     protected Transform PuntoDisparoEnemigo => puntoDisparo;
 
     // Eventos para que el AnimadorEnemigo (u otros sistemas) reaccionen a las
@@ -40,16 +51,28 @@ public class EnemigoBase : MonoBehaviour
 
     protected virtual void Awake()
     {
-        vidaActual = vidaMaxima;
+        AplicarFactoresDeNivel();
+        vidaActual = vidaMaximaEfectiva;
         PosicionInicial = transform.position;
     }
 
     protected virtual void OnEnable()
     {
-        vidaActual = vidaMaxima;
+        AplicarFactoresDeNivel();
+        vidaActual = vidaMaximaEfectiva;
         destruido = false;
         PosicionInicial = transform.position;
         proximoDisparo = Time.time + Random.Range(0.25f, intervaloDisparo);
+    }
+
+    /// <summary>
+    /// Calcula vida y velocidad efectivas según los factores de dificultad del
+    /// nivel actual. En el Nivel 1 (factores 1.0) equivale a los valores base.
+    /// </summary>
+    private void AplicarFactoresDeNivel()
+    {
+        vidaMaximaEfectiva = Mathf.Max(1, Mathf.RoundToInt(vidaMaxima * FactorVidaNivel));
+        velocidadEfectiva = velocidadMovimiento * ConfiguracionNivel.FactorVelocidadEnemigos;
     }
 
     protected virtual void Update()

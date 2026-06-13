@@ -27,6 +27,15 @@ public class GeneradorEnemigos : MonoBehaviour
 
     private void Start()
     {
+        // Dificultad por nivel: en el Nivel 2 los enemigos aparecen más seguido.
+        // En el Nivel 1 el factor es 1.0 -> intervalos sin cambios.
+        float factor = ConfiguracionNivel.FactorIntervaloAparicion;
+        if (factor > 0f && factor != 1f)
+        {
+            intervaloEnemigoTipoUno = Mathf.Max(0.4f, intervaloEnemigoTipoUno * factor);
+            intervaloEnemigoTipoDos = Mathf.Max(0.35f, intervaloEnemigoTipoDos * factor);
+        }
+
         rutinaTipoUno = StartCoroutine(GenerarTipoUnoContinuamente());
     }
 

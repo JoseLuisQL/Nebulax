@@ -59,12 +59,18 @@ Proyecto académico — Universidad Continental, Desarrollo de Videojuegos.
 ## Funcionalidades avanzadas
 
 - **Animaciones de enemigos ligadas a eventos + audio** — cada enemigo reacciona
-  a sus eventos (idle, squash al disparar, flash al recibir daño) mediante
-  `AnimadorEnemigo`, complementado con SFX de disparo, impacto, destrucción y
-  música de fondo.
-- **Items coleccionables** — `Coleccionable` (Prefab) cae por la pantalla; al
-  recogerlo, el `GestorJuego` lo registra en `Debug.Log` y alimenta la
-  progresión. Los genera `GeneradorItems`.
+  a sus eventos mediante `AnimadorEnemigo` con animación profesional: idle/hover,
+  **banking** (inclinación al virar), **kickback** y destello al disparar, y
+  **shake** + flash al recibir daño. Se complementa con SFX de disparo, **impacto
+  por colisión**, destrucción y música de fondo en bucle.
+- **Items coleccionables realistas** — `Coleccionable` (Prefab) con textura de
+  **gema facetada**, efectos (`EfectoColeccionable`: halo pulsante, chispas,
+  estela, destello), física y animación (pop de aparición, giro, flotación e
+  **imán magnético** hacia la nave). Al recogerlo, el `GestorJuego` lo registra
+  en `Debug.Log` y alimenta la progresión. Los genera `GeneradorItems`.
+- **Pantalla "Misión Cumplida"** — al derrotar al jefe aparece una pantalla
+  profesional (`PanelMisionCumplida`) con banner dorado, resumen, **jingle de
+  victoria** sintetizado y botón **"Siguiente Nivel"** que carga la 2ª escena.
 - **Progresión: habilidades y dificultad** — cada **5 items** sube 1 nivel
   (`GestorProgresion`): la nave gana **velocidad** y **cadencia**, y los enemigos
   se vuelven más rápidos/frecuentes.

@@ -42,6 +42,14 @@ public class GeneradorTilemapNivel : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoCrear()
     {
+        // Si la escena YA trae sus propios Tilemaps horneados (p. ej. la 2da
+        // escena real EscenaNivel2, con su GridNivel2 y Tilesets propios), NO
+        // generamos nada en runtime para no duplicar el entorno.
+        if (GameObject.Find("GridNivel2") != null)
+        {
+            return;
+        }
+
         if (FindFirstObjectByType<GeneradorTilemapNivel>() == null)
         {
             GameObject go = new GameObject("GeneradorTilemapNivel(auto)");

@@ -138,20 +138,30 @@ public class PanelMisionCumplida : MonoBehaviour
         if (tarjeta != null) tarjeta.localScale = Vector3.one;
     }
 
+    private const string EscenaNivel2 = "EscenaNivel2";
+
     private void AlSiguienteNivel()
     {
         Time.timeScale = 1f;
 
-        // Modelo de UNA sola escena: el "nivel" es un numero. Avanzamos de nivel
-        // (lo que sube la dificultad y hace aparecer el entorno tilado via
-        // ConfiguracionNivel / GeneradorTilemapNivel) y RECARGAMOS la misma
-        // escena de juego. EstadoJuego.ArrancarJugando hace que arranque jugando
-        // sin volver a mostrar el menu.
+        // Avanzamos de nivel (sube la dificultad via ConfiguracionNivel) y
+        // pedimos arranque directo jugando.
         EstadoJuego.AvanzarNivel();
+        EstadoJuego.ArrancarJugando = true;
+
+        // Si existe la 2da ESCENA REAL (EscenaNivel2, con sus Tilemaps/Tilesets
+        // propios), la cargamos para el Nivel 2. Su MarcadorNivel2 reafirma el
+        // nivel y el arranque directo. Para niveles superiores (o si no existe),
+        // recargamos la escena actual avanzando de nivel.
+        if (EstadoJuego.NivelActual == 2 && Application.CanStreamedLevelBeLoaded(EscenaNivel2))
+        {
+            Debug.Log("[MisionCumplida] Cargando 2da escena real: " + EscenaNivel2);
+            SceneManager.LoadScene(EscenaNivel2);
+            return;
+        }
 
         Debug.Log("[MisionCumplida] Avanzando al nivel " + EstadoJuego.NivelActual +
                   " (recargando la escena de juego).");
-
         Scene actual = SceneManager.GetActiveScene();
         SceneManager.LoadScene(actual.buildIndex);
     }

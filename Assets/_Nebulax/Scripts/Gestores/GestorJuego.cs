@@ -225,6 +225,12 @@ public class GestorJuego : MonoBehaviour
             generadorEnemigos.DetenerGeneracion();
         }
 
+        if (gestorAudio != null)
+        {
+            gestorAudio.ReproducirExplosionJugador();
+            gestorAudio.ReproducirMisionCumplida();
+        }
+
         if (gestorUI != null)
         {
             gestorUI.MostrarVictoria(true);

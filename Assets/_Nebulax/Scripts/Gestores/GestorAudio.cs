@@ -18,6 +18,7 @@ public class GestorAudio : MonoBehaviour
     [SerializeField] private AudioClip sfxPoder;
     [SerializeField] private AudioClip sfxItemRecolectado;
     [SerializeField] private AudioClip sfxImpactoEnemigo;
+    [SerializeField] private AudioClip sfxMisionCumplida;
     [SerializeField] private float volumenEfectos = 0.75f;
     [SerializeField] private float volumenAlerta = 0.35f;
 
@@ -96,6 +97,19 @@ public class GestorAudio : MonoBehaviour
         fuenteEfectos.ignoreListenerPause = true;
         fuenteEfectos.PlayOneShot(sfxGameOver, 1.0f);
     } 
+
+    public void ReproducirMisionCumplida()
+    {
+        if (fuenteEfectos == null) return;
+
+        // Jingle de victoria; ignora la pausa del tiempo (la partida se congela).
+        fuenteEfectos.ignoreListenerPause = true;
+        AudioClip clip = sfxMisionCumplida != null ? sfxMisionCumplida : sfxPoder;
+        if (clip != null)
+        {
+            fuenteEfectos.PlayOneShot(clip, 1.0f);
+        }
+    }
 
     public void ReproducirAlertaEnemigoIII(bool activar)
     {

@@ -142,6 +142,12 @@ public class EnemigoBase : MonoBehaviour
             vidaJugador.RecibirDaño(dañoAlJugador);
         }
 
+        // SFX del EVENTO DE COLISIÓN nave-enemigo (requisito de audio por evento).
+        if (GestorAudio.Instancia != null)
+        {
+            GestorAudio.Instancia.ReproducirImpactoEnemigo();
+        }
+
         DestruirEnemigo(false);
     }
 

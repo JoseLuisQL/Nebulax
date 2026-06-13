@@ -213,6 +213,14 @@ public static class NebulaxFuncionalidadesEditor
         string rutaEscena = Raiz + "/Escenas/EscenaPrincipal.unity";
         var escena = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(rutaEscena, UnityEditor.SceneManagement.OpenSceneMode.Single);
 
+        // 0) Jingle de "Misión Cumplida" cableado en el GestorAudio.
+        AudioClip jingle = GenerarJingleMisionCumplida();
+        GestorAudio gestorAudio = Object.FindFirstObjectByType<GestorAudio>();
+        if (gestorAudio != null && jingle != null)
+        {
+            SetObject(gestorAudio, "sfxMisionCumplida", jingle);
+        }
+
         // 1) GestorProgresion (singleton) — se añade al GestorJuego si existe.
         GestorJuego gestorJuego = Object.FindFirstObjectByType<GestorJuego>();
         if (gestorJuego != null)
@@ -331,6 +339,96 @@ public static class NebulaxFuncionalidadesEditor
         }
         AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport);
         return AssetDatabase.LoadAssetAtPath<Sprite>(ruta);
+    }
+
+    // ── Jingle "Misión Cumplida" sintetizado (WAV por código) ──────────────────
+    private static AudioClip GenerarJingleMisionCumplida()
+    {
+        string ruta = Raiz + "/Arte/Audio/Sfx/MisionCumplida.wav";
+        int sampleRate = 44100;
+
+        // Arpegio triunfal ascendente + acorde mayor final (Do-Mi-Sol-Do).
+        float[] notas = { 523.25f, 659.25f, 783.99f, 1046.50f }; // C5 E5 G5 C6
+        float durNota = 0.16f;
+        float durFinal = 0.9f;
+        float total = notas.Length * durNota + durFinal;
+        int n = Mathf.CeilToInt(sampleRate * total);
+        float[] muestras = new float[n];
+
+        // Notas del arpegio (con pequeña envolvente y armónicos).
+        for (int i = 0; i < notas.Length; i++)
+        {
+            int inicio = (int)(i * durNota * sampleRate);
+            int largo = (int)(durNota * 1.6f * sampleRate);
+            for (int s = 0; s < largo; s++)
+            {
+                int idx = inicio + s;
+                if (idx >= n) break;
+                float tt = s / (float)sampleRate;
+                float env = Mathf.Exp(-tt * 6f);
+                float onda = Mathf.Sin(2f * Mathf.PI * notas[i] * tt)
+                           + 0.4f * Mathf.Sin(2f * Mathf.PI * notas[i] * 2f * tt);
+                muestras[idx] += onda * env * 0.28f;
+            }
+        }
+
+        // Acorde mayor final sostenido (más brillante).
+        int inicioFinal = (int)(notas.Length * durNota * sampleRate);
+        float[] acorde = { 523.25f, 659.25f, 783.99f, 1046.50f };
+        for (int s = 0; inicioFinal + s < n; s++)
+        {
+            int idx = inicioFinal + s;
+            float tt = s / (float)sampleRate;
+            float env = Mathf.Exp(-tt * 2.2f);
+            float val = 0f;
+            foreach (float f in acorde)
+            {
+                val += Mathf.Sin(2f * Mathf.PI * f * tt);
+            }
+            muestras[idx] += (val / acorde.Length) * env * 0.5f;
+        }
+
+        // Normalizar para evitar clipping.
+        float max = 0.0001f;
+        for (int i = 0; i < n; i++) max = Mathf.Max(max, Mathf.Abs(muestras[i]));
+        float gan = 0.95f / max;
+        for (int i = 0; i < n; i++) muestras[i] *= gan;
+
+        EscribirWav(RutaFs(ruta), muestras, sampleRate);
+        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+        return AssetDatabase.LoadAssetAtPath<AudioClip>(ruta);
+    }
+
+    private static void EscribirWav(string rutaFs, float[] muestras, int sampleRate)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(rutaFs));
+        using (FileStream fs = new FileStream(rutaFs, FileMode.Create))
+        using (BinaryWriter w = new BinaryWriter(fs))
+        {
+            int canales = 1;
+            int bits = 16;
+            int byteRate = sampleRate * canales * bits / 8;
+            int dataSize = muestras.Length * canales * bits / 8;
+
+            w.Write(new char[] { 'R', 'I', 'F', 'F' });
+            w.Write(36 + dataSize);
+            w.Write(new char[] { 'W', 'A', 'V', 'E' });
+            w.Write(new char[] { 'f', 'm', 't', ' ' });
+            w.Write(16);
+            w.Write((short)1);            // PCM
+            w.Write((short)canales);
+            w.Write(sampleRate);
+            w.Write(byteRate);
+            w.Write((short)(canales * bits / 8));
+            w.Write((short)bits);
+            w.Write(new char[] { 'd', 'a', 't', 'a' });
+            w.Write(dataSize);
+            foreach (float m in muestras)
+            {
+                short v = (short)(Mathf.Clamp(m, -1f, 1f) * short.MaxValue);
+                w.Write(v);
+            }
+        }
     }
 
     // ── Helpers de serialización (mismos del constructor original) ─────────────

@@ -1,40 +1,49 @@
-using UnityEngine.SceneManagement;
+using UnityEngine;
 
 /// <summary>
 /// Configuración de dificultad/contenido POR NIVEL, centralizada y sin tocar
 /// las escenas en el Inspector.
 ///
-/// El nivel se detecta por el NOMBRE de la escena activa. El Nivel 1
-/// (EscenaPrincipal) usa siempre factores neutros (1.0), por lo que su
-/// comportamiento queda EXACTAMENTE igual que antes. El Nivel 2
-/// (EscenaNivel2) aplica multiplicadores para hacerlo más difícil y un jefe
-/// más agresivo.
-///
-/// Todos los consumidores leen estos factores de forma defensiva: si en el
-/// futuro hay más niveles, basta con ampliar aquí.
+/// El nivel ya NO depende de la escena: hay UNA sola escena de juego y el nivel
+/// es un número (<see cref="EstadoJuego.NivelActual"/>) que persiste entre
+/// recargas. El Nivel 1 usa siempre factores neutros (1.0), por lo que su
+/// comportamiento queda EXACTAMENTE igual que antes. A partir del Nivel 2 se
+/// aplica un escalado progresivo (más vida/velocidad de enemigos, jefe más
+/// agresivo), de modo que también funcionan niveles 3, 4, ...
 /// </summary>
 public static class ConfiguracionNivel
 {
-    public const string NombreEscenaNivel2 = "EscenaNivel2";
-
-    /// <summary>True si la escena activa es el Nivel 2.</summary>
-    public static bool EsNivel2
+    /// <summary>Nivel en curso (atajo a EstadoJuego).</summary>
+    public static int Nivel
     {
-        get { return SceneManager.GetActiveScene().name == NombreEscenaNivel2; }
+        get { return Mathf.Max(1, EstadoJuego.NivelActual); }
+    }
+
+    /// <summary>True si NO estamos en el primer nivel.</summary>
+    public static bool EsNivel2 // (se conserva el nombre por compatibilidad)
+    {
+        get { return Nivel >= 2; }
+    }
+
+    /// <summary>Pasos por encima del Nivel 1 (Nivel 1 -> 0, Nivel 2 -> 1, ...).</summary>
+    private static int PasosExtra
+    {
+        get { return Nivel - 1; }
     }
 
     // ── Factores de dificultad (Nivel 1 = 1.0 = sin cambios) ────────────────────
+    // El escalado es progresivo y acotado para no volverse imposible.
 
     /// <summary>Multiplica la vida de los enemigos normales.</summary>
     public static float FactorVidaEnemigos
     {
-        get { return EsNivel2 ? 1.5f : 1f; }
+        get { return 1f + 0.5f * PasosExtra; } // N1=1.0, N2=1.5, N3=2.0...
     }
 
     /// <summary>Multiplica la velocidad de movimiento de los enemigos.</summary>
     public static float FactorVelocidadEnemigos
     {
-        get { return EsNivel2 ? 1.3f : 1f; }
+        get { return Mathf.Min(2.0f, 1f + 0.3f * PasosExtra); } // N1=1.0, N2=1.3, cap 2.0
     }
 
     /// <summary>
@@ -43,13 +52,13 @@ public static class ConfiguracionNivel
     /// </summary>
     public static float FactorIntervaloAparicion
     {
-        get { return EsNivel2 ? 0.7f : 1f; }
+        get { return Mathf.Max(0.45f, 1f - 0.3f * PasosExtra); } // N1=1.0, N2=0.7, suelo 0.45
     }
 
     /// <summary>Multiplica la vida del enemigo jefe.</summary>
     public static float FactorVidaJefe
     {
-        get { return EsNivel2 ? 1.6f : 1f; }
+        get { return 1f + 0.6f * PasosExtra; } // N1=1.0, N2=1.6, N3=2.2...
     }
 
     /// <summary>
@@ -58,6 +67,6 @@ public static class ConfiguracionNivel
     /// </summary>
     public static bool JefeAgresivo
     {
-        get { return EsNivel2; }
+        get { return Nivel >= 2; }
     }
 }

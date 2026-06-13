@@ -19,7 +19,9 @@ public class GestorAudio : MonoBehaviour
     [SerializeField] private AudioClip sfxItemRecolectado;
     [SerializeField] private AudioClip sfxImpactoEnemigo;
     [SerializeField] private AudioClip sfxMisionCumplida;
+    [SerializeField] private AudioClip sfxDisparoEnemigo;
     [SerializeField] private float volumenEfectos = 0.75f;
+    [SerializeField] private float volumenDisparoEnemigo = 0.45f;
     [SerializeField] private float volumenAlerta = 0.35f;
 
     private void Awake()
@@ -77,14 +79,41 @@ public class GestorAudio : MonoBehaviour
         ReproducirClip(sfxPoder);
     }
 
+    private float proximoSfxDisparoEnemigo;
+
+    public void ReproducirDisparoEnemigo()
+    {
+        // Throttle: evita que el disparo en abanico del jefe sature el audio.
+        if (Time.unscaledTime < proximoSfxDisparoEnemigo)
+        {
+            return;
+        }
+        proximoSfxDisparoEnemigo = Time.unscaledTime + 0.06f;
+
+        AudioClip clip = sfxDisparoEnemigo != null ? sfxDisparoEnemigo : sfxDisparoJugador;
+        if (fuenteEfectos != null && clip != null)
+        {
+            fuenteEfectos.PlayOneShot(clip, volumenDisparoEnemigo);
+        }
+    }
+
     public void ReproducirItemRecolectado()
     {
         // Si no se asignó un SFX específico para items, reutiliza el de poder.
         ReproducirClip(sfxItemRecolectado != null ? sfxItemRecolectado : sfxPoder);
     }
 
+    private float proximoSfxImpacto;
+
     public void ReproducirImpactoEnemigo()
     {
+        // Throttle: el jefe recibe muchos impactos seguidos; evitamos saturar.
+        if (Time.unscaledTime < proximoSfxImpacto)
+        {
+            return;
+        }
+        proximoSfxImpacto = Time.unscaledTime + 0.05f;
+
         // SFX corto al impactar a un enemigo; reutiliza el de disparo si falta.
         ReproducirClip(sfxImpactoEnemigo != null ? sfxImpactoEnemigo : sfxDisparoJugador);
     }

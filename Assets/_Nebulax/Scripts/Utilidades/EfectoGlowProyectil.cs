@@ -87,13 +87,13 @@ public class EfectoGlowProyectil : MonoBehaviour
         main.startColor      = new ParticleSystem.MinMaxGradient(
                                    new Color(1f, 1f, 1f, 1f),
                                    new Color(colorNucleo.r, colorNucleo.g, colorNucleo.b, 0.85f));
-        main.maxParticles    = 80;
+        main.maxParticles    = 24;   // reducido (antes 80) para mejor rendimiento
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.loop            = true;
         main.playOnAwake     = true;
 
         var em = chispas.emission;
-        em.rateOverTime = 50f;
+        em.rateOverTime = 18f;        // reducido (antes 50) para mejor rendimiento
 
         var sh = chispas.shape;
         sh.enabled         = true;
@@ -139,8 +139,18 @@ public class EfectoGlowProyectil : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     //  HELPER: Material aditivo garantizado
     // ─────────────────────────────────────────────────────────────────────────
+    // Material aditivo COMPARTIDO: se crea una sola vez y se reutiliza en todos
+    // los proyectiles para evitar crear un material por instancia (clave para el
+    // rendimiento cuando el jefe dispara muchos proyectiles).
+    private static Material materialAditivoCache;
+
     internal static Material CrearMaterialAdditivo()
     {
+        if (materialAditivoCache != null)
+        {
+            return materialAditivoCache;
+        }
+
         string[] candidatos = {
             "Legacy Shaders/Particles/Additive",
             "Particles/Additive",
@@ -150,9 +160,10 @@ public class EfectoGlowProyectil : MonoBehaviour
         foreach (string nombre in candidatos)
         {
             Shader sh = Shader.Find(nombre);
-            if (sh != null) return new Material(sh);
+            if (sh != null) { materialAditivoCache = new Material(sh); return materialAditivoCache; }
         }
-        return new Material(Shader.Find("Standard"));
+        materialAditivoCache = new Material(Shader.Find("Standard"));
+        return materialAditivoCache;
     }
 
     // ─────────────────────────────────────────────────────────────────────────

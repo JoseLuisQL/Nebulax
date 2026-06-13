@@ -29,12 +29,51 @@ public static class NebulaxFuncionalidadesEditor
         AgregarAnimadorAEnemigosExistentes();
         IntegrarEnEscenaPrincipal(prefabCristal, prefabNucleo, prefabJefe);
 
+        RegistrarEscenasEnBuild();
+
         Debug.Log("Nebulax: funcionalidades construidas. Items: " + (prefabCristal != null && prefabNucleo != null) +
                   ", Jefe: " + (prefabJefe != null) +
                   ". Se integraron en EscenaPrincipal: GeneradorItems, GestorProgresion y el cableado del jefe.");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+    }
+
+    /// <summary>
+    /// Garantiza que EscenaPrincipal y EscenaNivel2 estén en Build Settings (y en
+    /// ese orden), para que el botón "Siguiente Nivel" pueda cargar el Nivel 2.
+    /// </summary>
+    [MenuItem("Nebulax/Funcionalidades/Registrar escenas en Build")]
+    public static void RegistrarEscenasEnBuild()
+    {
+        string principal = Raiz + "/Escenas/EscenaPrincipal.unity";
+        string nivel2 = Raiz + "/Escenas/EscenaNivel2.unity";
+
+        var lista = new System.Collections.Generic.List<EditorBuildSettingsScene>();
+        if (File.Exists(RutaFs(principal)))
+        {
+            lista.Add(new EditorBuildSettingsScene(principal, true));
+        }
+        if (File.Exists(RutaFs(nivel2)))
+        {
+            lista.Add(new EditorBuildSettingsScene(nivel2, true));
+        }
+
+        // Conservar otras escenas ya registradas que no sean estas dos.
+        foreach (var e in EditorBuildSettings.scenes)
+        {
+            if (e.path != principal && e.path != nivel2)
+            {
+                lista.Add(e);
+            }
+        }
+
+        EditorBuildSettings.scenes = lista.ToArray();
+
+        bool hayNivel2 = File.Exists(RutaFs(nivel2));
+        Debug.Log("Nebulax: escenas en Build -> EscenaPrincipal" +
+                  (hayNivel2 ? " + EscenaNivel2 (boton Siguiente Nivel listo)." :
+                   ". FALTA EscenaNivel2: ejecuta 'Construir 2da escena (Tilemaps)' para crearla."));
     }
 
     // ── Carpetas y tag ────────────────────────────────────────────────────────
@@ -214,12 +253,14 @@ public static class NebulaxFuncionalidadesEditor
         string rutaEscena = Raiz + "/Escenas/EscenaPrincipal.unity";
         var escena = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(rutaEscena, UnityEditor.SceneManagement.OpenSceneMode.Single);
 
-        // 0) Jingle de "Misión Cumplida" cableado en el GestorAudio.
+        // 0) Audios sintetizados cableados en el GestorAudio.
         AudioClip jingle = GenerarJingleMisionCumplida();
+        AudioClip disparoEnemigo = GenerarSfxDisparoEnemigo();
         GestorAudio gestorAudio = Object.FindFirstObjectByType<GestorAudio>();
-        if (gestorAudio != null && jingle != null)
+        if (gestorAudio != null)
         {
-            SetObject(gestorAudio, "sfxMisionCumplida", jingle);
+            if (jingle != null) SetObject(gestorAudio, "sfxMisionCumplida", jingle);
+            if (disparoEnemigo != null) SetObject(gestorAudio, "sfxDisparoEnemigo", disparoEnemigo);
         }
 
         // 1) GestorProgresion (singleton) — se añade al GestorJuego si existe.
@@ -394,6 +435,41 @@ public static class NebulaxFuncionalidadesEditor
         for (int i = 0; i < n; i++) muestras[i] *= gan;
 
         EscribirWav(RutaFs(ruta), muestras, sampleRate);
+        AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+        return AssetDatabase.LoadAssetAtPath<AudioClip>(ruta);
+    }
+
+    // ── SFX de disparo enemigo (láser espacial sintetizado) ────────────────────
+    private static AudioClip GenerarSfxDisparoEnemigo()
+    {
+        string ruta = Raiz + "/Arte/Audio/Sfx/DisparoEnemigo.wav";
+        int sampleRate = 44100;
+        float dur = 0.22f;
+        int n = Mathf.CeilToInt(sampleRate * dur);
+        float[] m = new float[n];
+
+        // "Pew" láser: frecuencia que baja rápido (sweep) con envolvente y un
+        // toque de armónico cuadrado para sonar sci-fi.
+        float fIni = 1400f, fFin = 240f;
+        float fase = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            float tt = i / (float)sampleRate;
+            float k = tt / dur;
+            float freq = Mathf.Lerp(fIni, fFin, k * k); // sweep no lineal
+            fase += 2f * Mathf.PI * freq / sampleRate;
+            float env = Mathf.Exp(-tt * 14f);           // decae rápido
+            float onda = Mathf.Sin(fase) + 0.3f * Mathf.Sign(Mathf.Sin(fase));
+            m[i] = onda * env * 0.5f;
+        }
+
+        // Normalizar.
+        float max = 0.0001f;
+        for (int i = 0; i < n; i++) max = Mathf.Max(max, Mathf.Abs(m[i]));
+        float gan = 0.9f / max;
+        for (int i = 0; i < n; i++) m[i] *= gan;
+
+        EscribirWav(RutaFs(ruta), m, sampleRate);
         AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
         return AssetDatabase.LoadAssetAtPath<AudioClip>(ruta);
     }

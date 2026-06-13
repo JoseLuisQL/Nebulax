@@ -114,6 +114,12 @@ public class EnemigoBase : MonoBehaviour
         Transform origen = puntoDisparo != null ? puntoDisparo : transform;
         DispararProyectiles(origen);
         AlDisparar?.Invoke();
+
+        // SFX de disparo enemigo (proyectil espacial) en cada disparo.
+        if (GestorAudio.Instancia != null)
+        {
+            GestorAudio.Instancia.ReproducirDisparoEnemigo();
+        }
     }
 
     protected virtual void DispararProyectiles(Transform origen)

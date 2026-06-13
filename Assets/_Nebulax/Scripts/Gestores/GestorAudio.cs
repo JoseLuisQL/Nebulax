@@ -64,17 +64,85 @@ public class GestorAudio : MonoBehaviour
         }
     }
 
+    [Header("Musica por nivel (opcional; si se deja vacio se carga de Resources/Musica)")]
+    [SerializeField] private AudioClip musicaNivel1;
+    [SerializeField] private AudioClip musicaNivel2;
+
+    /// <summary>
+    /// Inicia la música de fondo correspondiente al NIVEL actual: Nivel 1 ->
+    /// Interstellar, Nivel 2 -> Armin. Resuelve el clip por nivel en runtime
+    /// (carga desde Resources/Musica si no está asignado en el Inspector), de
+    /// modo que ambas escenas ya no comparten por error el mismo tema.
+    /// </summary>
     public void IniciarMusica()
+    {
+        AudioSource fuenteMusica = ObtenerFuenteMusica();
+        if (fuenteMusica == null)
+        {
+            return;
+        }
+
+        AudioClip clipNivel = ResolverMusicaDelNivel();
+        if (clipNivel != null)
+        {
+            // Solo reiniciamos si cambia el clip (evita cortar la misma pista).
+            if (fuenteMusica.clip != clipNivel)
+            {
+                fuenteMusica.clip = clipNivel;
+            }
+        }
+
+        fuenteMusica.loop = true;
+        if (!fuenteMusica.isPlaying)
+        {
+            fuenteMusica.Play();
+        }
+    }
+
+    /// <summary>Devuelve el AudioSource de música (loop, distinto de la alerta).</summary>
+    private AudioSource ObtenerFuenteMusica()
     {
         AudioSource[] sources = GetComponents<AudioSource>();
         foreach (var src in sources)
         {
-            if (src.loop && src != fuenteAlerta)
+            if (src != fuenteAlerta && src != fuenteEfectos && src.loop)
             {
-                src.Play();
-                break;
+                return src;
             }
         }
+        // Fallback: cualquier source con loop distinto de la alerta.
+        foreach (var src in sources)
+        {
+            if (src != fuenteAlerta && src.loop)
+            {
+                return src;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Resuelve el clip de música según EstadoJuego.NivelActual. Prioriza los
+    /// campos del Inspector; si faltan, carga por nombre desde Resources/Musica.
+    /// </summary>
+    private AudioClip ResolverMusicaDelNivel()
+    {
+        bool esNivel2 = EstadoJuego.NivelActual >= 2;
+
+        AudioClip asignado = esNivel2 ? musicaNivel2 : musicaNivel1;
+        if (asignado != null)
+        {
+            return asignado;
+        }
+
+        string nombre = esNivel2 ? "Musica/Armin" : "Musica/Interstellar";
+        AudioClip cargado = Resources.Load<AudioClip>(nombre);
+        if (cargado == null)
+        {
+            Debug.LogWarning("[GestorAudio] No se encontro la musica '" + nombre +
+                             "' en Resources/Musica. Se mantiene el clip actual del AudioSource.");
+        }
+        return cargado;
     }
 
     public void ReproducirDisparoJugador()

@@ -17,7 +17,14 @@ public class MarcadorNivel2 : MonoBehaviour
 
     private void Awake()
     {
-        EstadoJuego.NivelActual = Mathf.Max(1, nivel);
+        // Esta escena representa el Nivel 2 "como minimo". No degradamos el
+        // nivel si ya venimos de uno superior (p. ej. al recargar EscenaNivel2
+        // para el Nivel 3+ tras vencer al jefe). Solo lo elevamos si hace falta.
+        if (EstadoJuego.NivelActual < nivel)
+        {
+            EstadoJuego.NivelActual = nivel;
+        }
+
         if (arrancarJugando)
         {
             EstadoJuego.ArrancarJugando = true;

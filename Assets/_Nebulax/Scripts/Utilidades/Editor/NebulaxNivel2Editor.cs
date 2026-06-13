@@ -18,7 +18,7 @@ using System.IO;
 ///    marca como Nivel 2 (dificultad propia) con TEXTOS de UI propios.
 ///
 /// Ejecutar UNA vez desde el menú "Nebulax/Funcionalidades/Construir 2da escena
-/// (NIVEL 2 real)". No modifica EscenaPrincipal (usa Save As).
+/// (Nivel 2)". No modifica EscenaPrincipal (usa Save As).
 /// </summary>
 public static class NebulaxNivel2Editor
 {
@@ -36,7 +36,7 @@ public static class NebulaxNivel2Editor
     private const int FilaMin = -7;
     private const int FilaMax = 6;
 
-    [MenuItem("Nebulax/Funcionalidades/Construir 2da escena (NIVEL 2 real)")]
+    [MenuItem("Nebulax/Funcionalidades/Construir 2da escena (Nivel 2)")]
     public static void ConstruirNivel2()
     {
         if (!File.Exists(RutaFs(RutaEscenaBase)))
@@ -58,7 +58,7 @@ public static class NebulaxNivel2Editor
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("Nebulax: NIVEL 2 real creado en " + RutaEscena +
+        Debug.Log("Nebulax: 2da escena (Nivel 2) creada en " + RutaEscena +
                   " | Tileset+Material+Texturas en " + CarpetaTiles +
                   " | Tile Palette: " + RutaPaleta +
                   " | 3 Tilemaps (Roca/Hielo/Cristal). Recuerda anadirla a Build Settings " +

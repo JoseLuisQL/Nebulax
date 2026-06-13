@@ -142,43 +142,18 @@ public class PanelMisionCumplida : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        // Solicitar que la siguiente escena arranque jugando directamente, sin
-        // mostrar de nuevo el menú principal (que existe en la escena por ser
-        // una copia de la principal). El GestorMenuPrincipal consume la bandera.
-        GestorMenuPrincipal.AutoIniciarAlCargar = true;
+        // Modelo de UNA sola escena: el "nivel" es un numero. Avanzamos de nivel
+        // (lo que sube la dificultad y hace aparecer el entorno tilado via
+        // ConfiguracionNivel / GeneradorTilemapNivel) y RECARGAMOS la misma
+        // escena de juego. EstadoJuego.ArrancarJugando hace que arranque jugando
+        // sin volver a mostrar el menu.
+        EstadoJuego.AvanzarNivel();
 
-        string objetivo = ControladorNivel2.NombreEscena; // "EscenaNivel2"
+        Debug.Log("[MisionCumplida] Avanzando al nivel " + EstadoJuego.NivelActual +
+                  " (recargando la escena de juego).");
 
-        // 1) Intento por nombre (requiere que EscenaNivel2 esté en Build Settings).
-        if (Application.CanStreamedLevelBeLoaded(objetivo))
-        {
-            Debug.Log("[MisionCumplida] Cargando " + objetivo);
-            SceneManager.LoadScene(objetivo);
-            return;
-        }
-
-        // 2) Intento por índice: la siguiente escena distinta a la actual.
-        int actual = SceneManager.GetActiveScene().buildIndex;
-        int total = SceneManager.sceneCountInBuildSettings;
-        for (int i = 0; i < total; i++)
-        {
-            if (i != actual)
-            {
-                // Solo si NO es la escena actual (evita "recargar la principal").
-                string ruta = SceneUtility.GetScenePathByBuildIndex(i);
-                if (!string.IsNullOrEmpty(ruta) && ruta.Contains("Nivel2"))
-                {
-                    Debug.Log("[MisionCumplida] Cargando por indice: " + ruta);
-                    SceneManager.LoadScene(i);
-                    return;
-                }
-            }
-        }
-
-        // 3) Si no se encontró: avisar claramente en lugar de recargar la actual.
-        Debug.LogError("[MisionCumplida] No se encontro '" + objetivo +
-            "' en Build Settings. Ejecuta 'Nebulax/Funcionalidades/Construir 2da escena (Tilemaps)' " +
-            "y asegurate de que EscenaNivel2 este marcada en File > Build Settings.");
+        Scene actual = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(actual.buildIndex);
     }
 
     // ── Helpers de construcción de UI ──────────────────────────────────────────

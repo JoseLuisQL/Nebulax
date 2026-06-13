@@ -366,6 +366,8 @@ public class GestorJuego : MonoBehaviour
     public void ReiniciarPartida()
     {
         Time.timeScale = 1f;
+        // Reiniciar tras Game Over vuelve a empezar desde el Nivel 1 (con menu).
+        EstadoJuego.Reiniciar();
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 }

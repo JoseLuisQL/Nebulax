@@ -61,7 +61,10 @@ public class GestorMenuPrincipal : MonoBehaviour
             GestorAudio.Instancia.IniciarMusica();
         }
 
-        // 5. Ocultar todo el menú principal para revelar el juego
+        // 5. Mostrar el cartel del nivel actual ("NIVEL 1 / NIVEL 2").
+        CartelNivel.Mostrar();
+
+        // 6. Ocultar todo el menú principal para revelar el juego
         gameObject.SetActive(false);
     }
 }

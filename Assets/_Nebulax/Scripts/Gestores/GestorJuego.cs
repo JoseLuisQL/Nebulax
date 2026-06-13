@@ -236,6 +236,9 @@ public class GestorJuego : MonoBehaviour
             gestorUI.MostrarVictoria(true);
         }
 
+        // Pantalla profesional de "Misión Cumplida" con botón Siguiente Nivel.
+        PanelMisionCumplida.Mostrar(enemigosDestruidos, itemsRecolectados);
+
         Debug.Log("[GameManager] ¡VICTORIA! El jefe ha sido derrotado.");
         Time.timeScale = 0f;
     }

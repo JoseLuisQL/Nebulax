@@ -123,27 +123,38 @@ public static class NebulaxNivel2Editor
     private static Sprite GenerarSpriteTile(string nombre, TipoTextura tipo)
     {
         string ruta = CarpetaTexturas + "/" + nombre + ".png";
-        int size = 128;
-        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
 
-        switch (tipo)
+        // 1) Si YA existe el PNG de la textura (p. ej. las imagenes reales que
+        // proporciona el artista, ya colocadas en la carpeta), se RESPETA y se
+        // usa tal cual. Solo se genera una procedural si el archivo no existe.
+        if (!File.Exists(RutaFs(ruta)))
         {
-            case TipoTextura.RocaAsteroide: PintarRocaAsteroide(tex, size); break;
-            case TipoTextura.HieloCosmico: PintarHieloCosmico(tex, size); break;
-            default: PintarCristalEnergia(tex, size); break;
+            int size = 256;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            switch (tipo)
+            {
+                case TipoTextura.RocaAsteroide: PintarRocaAsteroide(tex, size); break;
+                case TipoTextura.HieloCosmico: PintarHieloCosmico(tex, size); break;
+                default: PintarCristalEnergia(tex, size); break;
+            }
+            tex.Apply();
+            File.WriteAllBytes(RutaFs(ruta), tex.EncodeToPNG());
         }
-        tex.Apply();
 
-        File.WriteAllBytes(RutaFs(ruta), tex.EncodeToPNG());
+        // 2) Importar como Sprite con ajustes correctos para tile cuadrado.
         AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
         TextureImporter ti = AssetImporter.GetAtPath(ruta) as TextureImporter;
         if (ti != null)
         {
             ti.textureType = TextureImporterType.Sprite;
             ti.spriteImportMode = SpriteImportMode.Single;
-            ti.spritePixelsPerUnit = 128;
+            // 256 px por unidad -> cada tile ocupa EXACTAMENTE 1x1 celda del Grid
+            // (la textura es 256x256), evitando huecos o solapes.
+            ti.spritePixelsPerUnit = 256;
             ti.filterMode = FilterMode.Bilinear;
+            ti.wrapMode = TextureWrapMode.Clamp;
             ti.mipmapEnabled = false;
+            ti.maxTextureSize = 512;
             ti.SaveAndReimport();
         }
         AssetDatabase.ImportAsset(ruta, ImportAssetOptions.ForceSynchronousImport);

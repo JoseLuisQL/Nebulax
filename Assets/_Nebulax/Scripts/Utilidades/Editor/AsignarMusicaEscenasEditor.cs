@@ -19,12 +19,11 @@ public class AsignarMusicaEscenasEditor
         AssetDatabase.Refresh();
 
         AudioClip clipInterstellar = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_Nebulax/Audio/Musica/Interstellar.mp3");
-        AudioClip clipArmin = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_Nebulax/Audio/Musica/Armin.mp3");
         AudioClip clipExplosionFuerte = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_Nebulax/Audio/Explosion.mp3");
 
-        if (clipInterstellar == null || clipArmin == null)
+        if (clipInterstellar == null)
         {
-            Debug.LogError("No se encontraron las canciones Interstellar o Armin en la ruta esperada.");
+            Debug.LogError("No se encontro la cancion Interstellar en la ruta esperada.");
             return;
         }
 
@@ -36,11 +35,10 @@ public class AsignarMusicaEscenasEditor
             return;
         }
 
-        // Configurar EscenaPrincipal
+        // Modelo de UNA sola escena: configuramos la música base en
+        // EscenaPrincipal. (La música distinta por nivel puede resolverse en
+        // runtime en el futuro a partir de EstadoJuego.NivelActual.)
         ConfigurarEscena("Assets/_Nebulax/Escenas/EscenaPrincipal.unity", clipInterstellar, clipExplosionFuerte);
-
-        // Configurar EscenaNivel2
-        ConfigurarEscena("Assets/_Nebulax/Escenas/EscenaNivel2.unity", clipArmin, clipExplosionFuerte);
 
         // Volver a la escena original
         if (!string.IsNullOrEmpty(escenaActualPath))
@@ -48,7 +46,7 @@ public class AsignarMusicaEscenasEditor
             EditorSceneManager.OpenScene(escenaActualPath, OpenSceneMode.Single);
         }
 
-        Debug.Log("¡Música configurada exitosamente en ambas escenas!");
+        Debug.Log("¡Música configurada en EscenaPrincipal (escena única)!");
     }
 
     private static void ConfigurarEscena(string scenePath, AudioClip clip, AudioClip explosionFuerteClip)

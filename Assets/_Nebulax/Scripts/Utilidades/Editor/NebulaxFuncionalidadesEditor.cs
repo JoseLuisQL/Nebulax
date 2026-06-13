@@ -40,29 +40,26 @@ public static class NebulaxFuncionalidadesEditor
     }
 
     /// <summary>
-    /// Garantiza que EscenaPrincipal y EscenaNivel2 estén en Build Settings (y en
-    /// ese orden), para que el botón "Siguiente Nivel" pueda cargar el Nivel 2.
+    /// Garantiza que EscenaPrincipal esté en Build Settings. Desde la
+    /// unificación de escenas hay UNA sola escena de juego: el "nivel" es un
+    /// número (EstadoJuego.NivelActual) y el botón "Siguiente Nivel" recarga
+    /// esta misma escena avanzando de nivel.
     /// </summary>
     [MenuItem("Nebulax/Funcionalidades/Registrar escenas en Build")]
     public static void RegistrarEscenasEnBuild()
     {
         string principal = Raiz + "/Escenas/EscenaPrincipal.unity";
-        string nivel2 = Raiz + "/Escenas/EscenaNivel2.unity";
 
         var lista = new System.Collections.Generic.List<EditorBuildSettingsScene>();
         if (File.Exists(RutaFs(principal)))
         {
             lista.Add(new EditorBuildSettingsScene(principal, true));
         }
-        if (File.Exists(RutaFs(nivel2)))
-        {
-            lista.Add(new EditorBuildSettingsScene(nivel2, true));
-        }
 
-        // Conservar otras escenas ya registradas que no sean estas dos.
+        // Conservar otras escenas ya registradas que no sean la principal.
         foreach (var e in EditorBuildSettings.scenes)
         {
-            if (e.path != principal && e.path != nivel2)
+            if (e.path != principal)
             {
                 lista.Add(e);
             }
@@ -70,10 +67,8 @@ public static class NebulaxFuncionalidadesEditor
 
         EditorBuildSettings.scenes = lista.ToArray();
 
-        bool hayNivel2 = File.Exists(RutaFs(nivel2));
-        Debug.Log("Nebulax: escenas en Build -> EscenaPrincipal" +
-                  (hayNivel2 ? " + EscenaNivel2 (boton Siguiente Nivel listo)." :
-                   ". FALTA EscenaNivel2: ejecuta 'Construir 2da escena (Tilemaps)' para crearla."));
+        Debug.Log("Nebulax: escenas en Build -> EscenaPrincipal (escena unica; " +
+                  "los niveles se resuelven en runtime con EstadoJuego.NivelActual).");
     }
 
     // ── Carpetas y tag ────────────────────────────────────────────────────────

@@ -54,6 +54,9 @@ public class EnemigoJefe : EnemigoBase
 
         AlMorir += NotificarVictoria;
 
+        // Barra de vida profesional del jefe.
+        BarraVidaJefe.Mostrar(this, "DEVASTADOR · ENEMIGO JEFE");
+
         if (GestorJuego.Instancia != null)
         {
             GestorJuego.Instancia.ConfigurarAlertaEnemigoIII(true);
@@ -63,6 +66,7 @@ public class EnemigoJefe : EnemigoBase
     protected void OnDisable()
     {
         AlMorir -= NotificarVictoria;
+        BarraVidaJefe.Ocultar();
     }
 
     private void NotificarVictoria()

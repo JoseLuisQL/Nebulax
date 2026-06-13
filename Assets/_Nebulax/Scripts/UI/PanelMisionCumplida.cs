@@ -142,24 +142,38 @@ public class PanelMisionCumplida : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        // Preferimos la 2ª escena (Tilemaps); si no está en Build, intentamos por
-        // índice; si tampoco, recargamos la actual como salvaguarda.
-        string objetivo = ControladorNivel2.NombreEscena;
+        string objetivo = ControladorNivel2.NombreEscena; // "EscenaNivel2"
+
+        // 1) Intento por nombre (requiere que EscenaNivel2 esté en Build Settings).
         if (Application.CanStreamedLevelBeLoaded(objetivo))
         {
+            Debug.Log("[MisionCumplida] Cargando " + objetivo);
             SceneManager.LoadScene(objetivo);
             return;
         }
 
-        int siguiente = SceneManager.GetActiveScene().buildIndex + 1;
-        if (siguiente < SceneManager.sceneCountInBuildSettings)
+        // 2) Intento por índice: la siguiente escena distinta a la actual.
+        int actual = SceneManager.GetActiveScene().buildIndex;
+        int total = SceneManager.sceneCountInBuildSettings;
+        for (int i = 0; i < total; i++)
         {
-            SceneManager.LoadScene(siguiente);
+            if (i != actual)
+            {
+                // Solo si NO es la escena actual (evita "recargar la principal").
+                string ruta = SceneUtility.GetScenePathByBuildIndex(i);
+                if (!string.IsNullOrEmpty(ruta) && ruta.Contains("Nivel2"))
+                {
+                    Debug.Log("[MisionCumplida] Cargando por indice: " + ruta);
+                    SceneManager.LoadScene(i);
+                    return;
+                }
+            }
         }
-        else
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
+
+        // 3) Si no se encontró: avisar claramente en lugar de recargar la actual.
+        Debug.LogError("[MisionCumplida] No se encontro '" + objetivo +
+            "' en Build Settings. Ejecuta 'Nebulax/Funcionalidades/Construir 2da escena (Tilemaps)' " +
+            "y asegurate de que EscenaNivel2 este marcada en File > Build Settings.");
     }
 
     // ── Helpers de construcción de UI ──────────────────────────────────────────

@@ -81,6 +81,10 @@ public class GestorProgresion : MonoBehaviour
         if (nave != null)
         {
             nave.AumentarVelocidad(factorVelocidadNave);
+
+            // Aura de energía: más nivel/velocidad -> más energía visible.
+            AuraEnergiaNave aura = AuraEnergiaNave.ObtenerOCrear(nave.gameObject);
+            aura.SubirNivel(nivelActual);
         }
 
         DisparoNaveJugador disparo = nave != null

@@ -28,7 +28,7 @@ public class EnemigoBase : MonoBehaviour
     protected GameObject PrefabProyectilEnemigo => prefabProyectilEnemigo;
 
     /// <summary>Porcentaje de vida actual (0..1). Útil para fases del jefe.</summary>
-    protected float PorcentajeVida => vidaMaxima <= 0 ? 0f : Mathf.Clamp01(vidaActual / (float)vidaMaxima);
+    public float PorcentajeVida => vidaMaxima <= 0 ? 0f : Mathf.Clamp01(vidaActual / (float)vidaMaxima);
     protected Transform PuntoDisparoEnemigo => puntoDisparo;
 
     // Eventos para que el AnimadorEnemigo (u otros sistemas) reaccionen a las

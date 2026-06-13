@@ -21,8 +21,9 @@ public static class NebulaxFuncionalidadesEditor
         CrearTagColeccionable();
         AssetDatabase.Refresh();
 
-        GameObject prefabCristal = CrearPrefabColeccionable("Cristal", 0, new Color(0.3f, 0.9f, 1f));
-        GameObject prefabNucleo = CrearPrefabColeccionable("NucleoEnergia", 1, new Color(1f, 0.8f, 0.2f));
+        // Esferas de energía espacial: plasma azul y energía solar.
+        GameObject prefabCristal = CrearPrefabColeccionable("Cristal", 0, new Color(0.25f, 0.75f, 1f));
+        GameObject prefabNucleo = CrearPrefabColeccionable("NucleoEnergia", 1, new Color(1f, 0.6f, 0.15f));
         GameObject prefabJefe = CrearPrefabJefe();
         CrearAnimatorControllerEnemigos();
         AgregarAnimadorAEnemigosExistentes();
@@ -270,17 +271,18 @@ public static class NebulaxFuncionalidadesEditor
         }
     }
 
-    // ── Gema facetada realista (cristal con caras, brillo y borde) ─────────────
+    // ── Esfera de energía espacial (plasma con núcleo brillante y halo) ────────
     private static Sprite GenerarSpriteGema(string nombre, Color color)
     {
         string ruta = Raiz + "/Arte/Sprites/Coleccionables/" + nombre + ".png";
         int size = 128;
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         Vector2 centro = new Vector2(size / 2f, size / 2f);
-        float r = size * 0.44f;
+        float r = size * 0.46f;
 
-        Color claro = Color.Lerp(color, Color.white, 0.7f);
-        Color oscuro = Color.Lerp(color, Color.black, 0.45f);
+        Color nucleo = Color.Lerp(color, Color.white, 0.85f); // centro casi blanco
+        Color medio = color;
+        Color borde = Color.Lerp(color, Color.black, 0.35f);
 
         for (int y = 0; y < size; y++)
         {
@@ -288,34 +290,31 @@ public static class NebulaxFuncionalidadesEditor
             {
                 float dx = x - centro.x;
                 float dy = y - centro.y;
-                // Forma de gema hexagonal alargada (diamante con hombros).
-                float formaDiamante = Mathf.Abs(dx) / (r * 0.7f) + Mathf.Abs(dy) / r;
-                if (formaDiamante <= 1f)
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                float d = dist / r; // 0 centro, 1 borde
+
+                if (d <= 1f)
                 {
-                    // Facetas: dividimos en cuadrantes con tono distinto para dar
-                    // sensación de caras talladas.
-                    bool arriba = dy >= 0f;
-                    bool derecha = dx >= 0f;
-                    float faceta = (arriba ? 0.62f : 0.38f) + (derecha ? 0.10f : -0.08f);
+                    // Degradado radial: núcleo brillante -> color -> borde oscuro.
+                    Color c;
+                    if (d < 0.45f) c = Color.Lerp(nucleo, medio, d / 0.45f);
+                    else c = Color.Lerp(medio, borde, (d - 0.45f) / 0.55f);
 
-                    // Línea de talla central (cintura del diamante).
-                    float talla = Mathf.Abs(dy) < 2.2f ? 0.35f : 1f;
+                    // Brillo especular (highlight) desplazado arriba-izquierda,
+                    // como reflejo en una esfera.
+                    float spec = Mathf.Clamp01(1f - (new Vector2(dx + r * 0.30f, dy - r * 0.30f).magnitude) / (r * 0.55f));
+                    c = Color.Lerp(c, Color.white, spec * spec * 0.85f);
 
-                    Color c = Color.Lerp(oscuro, claro, Mathf.Clamp01(faceta));
-                    c = Color.Lerp(c, color, 0.25f);
-                    c *= talla;
-
-                    // Reflejo especular brillante arriba-izquierda.
-                    float spec = Mathf.Clamp01(1f - (new Vector2(dx + r * 0.25f, dy - r * 0.35f).magnitude) / (r * 0.5f));
-                    c = Color.Lerp(c, Color.white, spec * 0.7f);
-
-                    // Borde más definido.
-                    if (formaDiamante > 0.92f)
+                    // Anillo de energía ecuatorial (toque sci-fi).
+                    float anillo = Mathf.Abs(d - 0.72f);
+                    if (anillo < 0.05f)
                     {
-                        c = Color.Lerp(c, claro, 0.5f);
+                        c = Color.Lerp(c, Color.Lerp(nucleo, Color.white, 0.5f), (0.05f - anillo) / 0.05f * 0.6f);
                     }
 
-                    c.a = 1f;
+                    // Alpha: opaco dentro, se desvanece suave en el borde (glow).
+                    float alpha = d < 0.88f ? 1f : Mathf.Clamp01((1f - d) / 0.12f);
+                    c.a = alpha;
                     tex.SetPixel(x, y, c);
                 }
                 else

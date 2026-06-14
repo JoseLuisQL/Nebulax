@@ -445,6 +445,12 @@ public static class NebulaxNivel2Editor
             GameObject textos = new GameObject("TextosNivel2");
             textos.AddComponent<TextosNivel2>();
         }
+        // Atmósfera de espacio profundo (velo oscuro) para diferenciar el nivel.
+        if (GameObject.Find("AtmosferaNivel") == null)
+        {
+            GameObject atm = new GameObject("AtmosferaNivel");
+            atm.AddComponent<AtmosferaNivel>();
+        }
 
         EditorSceneManager.SaveScene(escena, RutaEscena);
         RegistrarEnBuild();

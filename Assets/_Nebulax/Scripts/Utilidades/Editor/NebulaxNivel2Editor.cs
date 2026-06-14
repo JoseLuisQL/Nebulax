@@ -400,42 +400,37 @@ public static class NebulaxNivel2Editor
 
         GameObject grid = new GameObject("GridNivel2");
         grid.AddComponent<Grid>();
+        // Desplazamiento lento del fondo (scroll infinito de 2 bandas).
+        DesplazadorFondoTilemap desp = grid.AddComponent<DesplazadorFondoTilemap>();
 
+        // El fondo NO usa collider: son elementos decorativos que se desplazan,
+        // no obstaculos solidos (asi no estorban la jugabilidad al moverse).
         Tilemap tmFondo = CrearTilemap(grid.transform, "Tilemap_Fondo_Roca", -90, false, material);
-        Tilemap tmMuros = CrearTilemap(grid.transform, "Tilemap_Muros_Hielo", -85, true, material);
-        Tilemap tmDeco = CrearTilemap(grid.transform, "Tilemap_Cristales", -80, false, material);
+        Tilemap tmMuros = CrearTilemap(grid.transform, "Tilemap_Asteroides_Hielo", -89, false, material);
+        Tilemap tmDeco = CrearTilemap(grid.transform, "Tilemap_Cristales", -88, false, material);
 
-        // 1) Fondo de roca: toda el área.
-        for (int x = ColMin; x <= ColMax; x++)
-            for (int y = FilaMin; y <= FilaMax; y++)
-                tmFondo.SetTile(new Vector3Int(x, y, 0), tileFondo);
+        // Distribución ORGÁNICA y dispersa (no simétrica), en DOS bandas
+        // verticales idénticas para que el scroll infinito no tenga saltos.
+        const int alturaBanda = 14;
+        var rnd = new System.Random(2024); // determinista
+        for (int y = FilaMin; y < FilaMin + alturaBanda; y++)
+        {
+            for (int x = ColMin; x <= ColMax; x++)
+            {
+                double r = rnd.NextDouble();
+                Tilemap destino = null;
+                Tile tile = null;
+                if (r < 0.10) { destino = tmFondo; tile = tileFondo; }
+                else if (r < 0.135) { destino = tmMuros; tile = tileMuro; }
+                else if (r < 0.155) { destino = tmDeco; tile = tileDeco; }
 
-        // 2) Muros de hielo: marco perimetral + islas internas que caracterizan.
-        for (int x = ColMin; x <= ColMax; x++)
-        {
-            tmMuros.SetTile(new Vector3Int(x, FilaMin, 0), tileMuro);
-            tmMuros.SetTile(new Vector3Int(x, FilaMax, 0), tileMuro);
-        }
-        for (int y = FilaMin; y <= FilaMax; y++)
-        {
-            tmMuros.SetTile(new Vector3Int(ColMin, y, 0), tileMuro);
-            tmMuros.SetTile(new Vector3Int(ColMax, y, 0), tileMuro);
-        }
-        int[] islasX = { ColMin + 4, 0, ColMax - 4 };
-        foreach (int ix in islasX)
-        {
-            tmMuros.SetTile(new Vector3Int(ix, FilaMax - 3, 0), tileMuro);
-            tmMuros.SetTile(new Vector3Int(ix + 1, FilaMax - 3, 0), tileMuro);
-            tmMuros.SetTile(new Vector3Int(ix, FilaMin + 3, 0), tileMuro);
-            tmMuros.SetTile(new Vector3Int(ix + 1, FilaMin + 3, 0), tileMuro);
-        }
-
-        // 3) Cristales de energía: acentos repartidos.
-        for (int x = ColMin + 2; x <= ColMax - 2; x += 2)
-        {
-            tmDeco.SetTile(new Vector3Int(x, FilaMax - 2, 0), tileDeco);
-            tmDeco.SetTile(new Vector3Int(x + 1, FilaMin + 2, 0), tileDeco);
-            if (x % 4 == 0) tmDeco.SetTile(new Vector3Int(x, 0, 0), tileDeco);
+                if (destino != null)
+                {
+                    destino.SetTile(new Vector3Int(x, y, 0), tile);
+                    // Banda idéntica encima (para el bucle sin saltos).
+                    destino.SetTile(new Vector3Int(x, y + alturaBanda, 0), tile);
+                }
+            }
         }
 
         // Marca de Nivel 2 (dificultad propia + arranque directo).

@@ -1,22 +1,21 @@
 # 🎬 Guion del Video — Nebulax (PA2)
 
-> **Cómo usar este guion:** lean el texto **en voz alta** tal como está escrito.
+> **Cómo usar este guion:** lee el texto **en voz alta** tal como está escrito.
 > Cada bloque indica **🎥 QUÉ MOSTRAR EN PANTALLA** y **📄 RUTA DEL CÓDIGO** que
-> deben abrir y enseñar. Sigan el orden de arriba hacia abajo.
+> debes abrir y enseñar. Sigue el orden de arriba hacia abajo.
 >
+> **Trabajo individual.**
 > **Duración sugerida:** 8 – 12 minutos.
-> **Reparto:** 5 puntos → un integrante por punto (participación proporcional).
 
 ---
 
-## 🎙️ INTRO (cualquier integrante — 30 seg)
+## 🎙️ INTRO (30 seg)
 
-> "Hola profesor. Somos el equipo **[nombres de los integrantes]** y este es
-> nuestro proyecto **Nebulax**, un *shoot 'em up* espacial vertical en 2D hecho
-> en **Unity 6** con **URP** e **Input System**.
-> En este video vamos a mostrar **primero** el funcionamiento del juego, y
-> **después** cada integrante explicará cómo resolvió uno de los cinco puntos
-> del PA2."
+> "Hola profesor. Soy **[tu nombre]** y este es mi proyecto **Nebulax**, un
+> *shoot 'em up* espacial vertical en 2D hecho en **Unity 6** con **URP** e
+> **Input System**.
+> En este video voy a mostrar **primero** el funcionamiento del juego, y
+> **después** voy a explicar cómo resolví los **cinco puntos** del PA2."
 
 **🎥 MOSTRAR:** El proyecto abierto en Unity, la ventana de Jerarquía y la
 escena `EscenaPrincipal` cargada.
@@ -25,7 +24,7 @@ escena `EscenaPrincipal` cargada.
 
 # 🕹️ PRIMERA PARTE: Funcionamiento del juego
 
-*(Un integrante narra mientras juega — 2 a 3 minutos)*
+*(Narra mientras juegas — 2 a 3 minutos)*
 
 > "Primero les muestro el juego funcionando de principio a fin."
 
@@ -64,8 +63,8 @@ escena `EscenaPrincipal` cargada.
    > "El Nivel 2 es un campo de asteroides, más oscuro y profundo, con su propia
    > música, fondo en movimiento por capas y enemigos más agresivos."
 
-> "Este es el alcance del juego pedido en el examen. Ahora cada integrante
-> explica su punto."
+> "Este es el alcance del juego pedido en el examen. Ahora explico cada uno de
+> los cinco puntos."
 
 ---
 
@@ -74,13 +73,12 @@ escena `EscenaPrincipal` cargada.
 ---
 
 ## ✅ PUNTO 1 — Animaciones de enemigos + Audios por evento
-### 👤 Integrante 1
 
-> "Yo resolví el **punto 1**: animaciones en los enemigos que **cambian según
-> eventos** y que además están **asociadas a audios** de fondo, colisión,
-> disparos y destrucción."
+> "El **punto 1** pide animaciones en los enemigos que **cambian según eventos**
+> y que además estén **asociadas a audios** de fondo, colisión, disparos y
+> destrucción. Así lo resolví:"
 
-**Cómo lo hicimos (explícalo):**
+**Cómo lo hice (explícalo):**
 
 > "Cada enemigo lanza **eventos** cuando dispara, recibe daño o muere. Un
 > componente de animación se **suscribe** a esos eventos y reacciona: destello
@@ -126,16 +124,15 @@ fondo sonando.
 ---
 
 ## ✅ PUNTO 2 — Recolección de ítems con Prefabs reflejada en Debug.Log
-### 👤 Integrante 2
 
-> "Yo resolví el **punto 2**: la recolección de ítems usando **Prefabs**, y que
-> cada recolección se **refleja en el Debug.Log del GameManager**."
+> "El **punto 2** pide la recolección de ítems usando **Prefabs**, y que cada
+> recolección se **refleje en el Debug.Log del GameManager**. Así lo resolví:"
 
-**Cómo lo hicimos (explícalo):**
+**Cómo lo hice (explícalo):**
 
 > "Los ítems son **Prefabs** que caen por la pantalla. Cuando la nave toca uno,
 > el ítem avisa al **GestorJuego** (GameManager), que escribe en la consola con
-> `Debug.Log` qué ítem se recogió y el progreso. Generamos ítems en cantidad
+> `Debug.Log` qué ítem se recogió y el progreso. Genero ítems en cantidad
 > suficiente para que sea parte real de la mecánica."
 
 **📄 RUTA DEL CÓDIGO A MOSTRAR:**
@@ -170,15 +167,14 @@ recolectado: ...` en tiempo real.
 ---
 
 ## ✅ PUNTO 3 — 2da escena con Tilesets, Tile Palette, Materiales y texturas
-### 👤 Integrante 3
 
-> "Yo resolví el **punto 3**: el diseño de la **segunda escena** usando
-> **Tilesets** y **Tile Palette** con **Materiales y texturas**, aplicando
-> **más de un Tilemap** que caracteriza el nivel."
+> "El **punto 3** pide diseñar la **segunda escena** usando **Tilesets** y **Tile
+> Palette** con **Materiales y texturas**, aplicando **más de un Tilemap** que
+> caracterice el nivel. Así lo resolví:"
 
-**Cómo lo hicimos (explícalo):**
+**Cómo lo hice (explícalo):**
 
-> "Creamos un **Tileset** de 3 tiles con texturas espaciales propias (roca de
+> "Creé un **Tileset** de 3 tiles con texturas espaciales propias (roca de
 > asteroide, hielo cósmico y cristal de energía), un **Material** y una **Tile
 > Palette**. La escena del Nivel 2 usa **tres Tilemaps** a distinta profundidad
 > (parallax), que se mueven lento para dar sensación de adentrarse en el espacio
@@ -213,12 +209,11 @@ desplazándose por capas (parallax) y más oscuro que el Nivel 1.
 ---
 
 ## ✅ PUNTO 4 — Incremento de habilidades (ítems) y niveles (velocidad)
-### 👤 Integrante 4
 
-> "Yo resolví el **punto 4**: las reglas que permiten **incrementar
-> habilidades** al recoger ítems y subir de **nivel y dificultad**."
+> "El **punto 4** pide reglas que permitan **incrementar habilidades** al recoger
+> ítems y subir de **nivel y dificultad**. Así lo resolví:"
 
-**Cómo lo hicimos (explícalo):**
+**Cómo lo hice (explícalo):**
 
 > "Cada **5 ítems** recogidos se sube de nivel. Al subir de nivel: la **nave gana
 > velocidad y mejor cadencia de disparo** (habilidades), y los **enemigos se
@@ -252,11 +247,10 @@ veloz.
 ---
 
 ## ✅ PUNTO 5 — Enemigo Jefe animado
-### 👤 Integrante 5
 
-> "Yo resolví el **punto 5**: el **enemigo JEFE animado adecuadamente**."
+> "El **punto 5** pide **animar un enemigo JEFE adecuadamente**. Así lo resolví:"
 
-**Cómo lo hicimos (explícalo):**
+**Cómo lo hice (explícalo):**
 
 > "El jefe hereda del enemigo base, así que también reacciona a eventos con
 > animación y audio. Además tiene su **animación propia**: entrada desde fuera de
@@ -285,7 +279,7 @@ pierde vida.
 
 ---
 
-## 🎙️ CIERRE (cualquier integrante — 20 seg)
+## 🎙️ CIERRE (20 seg)
 
 > "En resumen, Nebulax cumple los cinco puntos del PA2: animaciones de enemigos
 > con audio por evento, recolección de ítems con Prefabs reflejada en el
@@ -304,5 +298,4 @@ pierde vida.
 - [ ] Probar una partida completa antes (llegar al jefe y al Nivel 2).
 - [ ] Tener a mano cada archivo `.cs` que se menciona, para abrirlo rápido.
 - [ ] Audio del PC encendido (para que se escuchen música y SFX del punto 1).
-- [ ] Cada integrante sabe **qué punto** le toca y **qué archivo** mostrar.
 - [ ] Grabar pantalla + voz; hablar claro y sin prisa.

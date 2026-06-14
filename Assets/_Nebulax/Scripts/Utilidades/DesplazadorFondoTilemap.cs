@@ -21,12 +21,17 @@ public class DesplazadorFondoTilemap : MonoBehaviour
              "reinicia cada vez que se ha desplazado esta distancia.")]
     [SerializeField] private float alturaBanda = 14f;
 
-    private Vector3 posicionInicial;
     private float desplazado;
+    private float alturaBucleMundo;
 
     private void Start()
     {
-        posicionInicial = transform.position;
+        // La banda mide "alturaBanda" en celdas locales; en el mundo, su tamaño
+        // depende de la escala de esta capa (las capas lejanas van escaladas).
+        // Así el bucle es exacto y sin saltos para cada profundidad.
+        float escalaY = transform.lossyScale.y;
+        if (Mathf.Approximately(escalaY, 0f)) escalaY = 1f;
+        alturaBucleMundo = alturaBanda * escalaY;
     }
 
     private void Update()
@@ -42,10 +47,10 @@ public class DesplazadorFondoTilemap : MonoBehaviour
 
         // Al recorrer una banda completa, volvemos arriba (bucle sin salto
         // perceptible porque la banda superior es idéntica a la inferior).
-        if (desplazado >= alturaBanda)
+        if (desplazado >= alturaBucleMundo)
         {
-            desplazado -= alturaBanda;
-            transform.position += Vector3.up * alturaBanda;
+            desplazado -= alturaBucleMundo;
+            transform.position += Vector3.up * alturaBucleMundo;
         }
     }
 }

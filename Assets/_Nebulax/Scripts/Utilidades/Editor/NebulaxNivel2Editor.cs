@@ -400,38 +400,16 @@ public static class NebulaxNivel2Editor
 
         GameObject grid = new GameObject("GridNivel2");
         grid.AddComponent<Grid>();
-        // Desplazamiento lento del fondo (scroll infinito de 2 bandas).
-        DesplazadorFondoTilemap desp = grid.AddComponent<DesplazadorFondoTilemap>();
 
-        // El fondo NO usa collider: son elementos decorativos que se desplazan,
-        // no obstaculos solidos (asi no estorban la jugabilidad al moverse).
-        Tilemap tmFondo = CrearTilemap(grid.transform, "Tilemap_Fondo_Roca", -90, false, material);
-        Tilemap tmMuros = CrearTilemap(grid.transform, "Tilemap_Asteroides_Hielo", -89, false, material);
-        Tilemap tmDeco = CrearTilemap(grid.transform, "Tilemap_Cristales", -88, false, material);
-
-        // Distribución ORGÁNICA y dispersa (no simétrica), en DOS bandas
-        // verticales idénticas para que el scroll infinito no tenga saltos.
+        // PARALLAX por profundidad: 3 capas a distinta distancia. Las lejanas se
+        // mueven más lento, son más pequeñas y más oscuras; las cercanas, más
+        // rápidas, grandes y brillantes. Cada capa tiene su propio desplazador y
+        // su distribución orgánica e independiente.
         const int alturaBanda = 14;
-        var rnd = new System.Random(2024); // determinista
-        for (int y = FilaMin; y < FilaMin + alturaBanda; y++)
-        {
-            for (int x = ColMin; x <= ColMax; x++)
-            {
-                double r = rnd.NextDouble();
-                Tilemap destino = null;
-                Tile tile = null;
-                if (r < 0.10) { destino = tmFondo; tile = tileFondo; }
-                else if (r < 0.135) { destino = tmMuros; tile = tileMuro; }
-                else if (r < 0.155) { destino = tmDeco; tile = tileDeco; }
-
-                if (destino != null)
-                {
-                    destino.SetTile(new Vector3Int(x, y, 0), tile);
-                    // Banda idéntica encima (para el bucle sin saltos).
-                    destino.SetTile(new Vector3Int(x, y + alturaBanda, 0), tile);
-                }
-            }
-        }
+        //                       nombre                         tile        order  vel   escala  color(brillo)
+        CrearCapaParallax(grid.transform, "Tilemap_Lejano_Cristales",   tileDeco,  -92, 0.18f, 0.60f, new Color(0.35f, 0.38f, 0.50f), material, alturaBanda, 11, 0.05);
+        CrearCapaParallax(grid.transform, "Tilemap_Medio_Hielo",        tileMuro,  -91, 0.38f, 0.85f, new Color(0.60f, 0.65f, 0.78f), material, alturaBanda, 22, 0.06);
+        CrearCapaParallax(grid.transform, "Tilemap_Cercano_Asteroides", tileFondo, -90, 0.70f, 1.15f, Color.white,                    material, alturaBanda, 33, 0.05);
 
         // Marca de Nivel 2 (dificultad propia + arranque directo).
         if (GameObject.Find("MarcadorNivel2") == null)
@@ -459,16 +437,43 @@ public static class NebulaxNivel2Editor
         EditorSceneManager.OpenScene(RutaEscenaBase, OpenSceneMode.Single);
     }
 
-    private static Tilemap CrearTilemap(Transform padre, string nombre, int orden, bool conCollider, Material material)
+    /// <summary>
+    /// Crea una capa de fondo con profundidad (parallax): escala, tinte (brillo),
+    /// velocidad de scroll y distribución orgánica propias. Dos bandas idénticas
+    /// para bucle infinito sin saltos.
+    /// </summary>
+    private static void CrearCapaParallax(Transform padre, string nombre, Tile tile, int orden,
+        float velocidad, float escala, Color tinte, Material material, int alturaBanda, int semilla, double densidad)
     {
         GameObject go = new GameObject(nombre);
         go.transform.SetParent(padre, false);
+        go.transform.localScale = new Vector3(escala, escala, 1f);
+
         Tilemap tm = go.AddComponent<Tilemap>();
+        tm.color = tinte; // capas lejanas = más oscuras
+
         TilemapRenderer tr = go.AddComponent<TilemapRenderer>();
         tr.sortingOrder = orden;
         if (material != null) tr.sharedMaterial = material;
-        if (conCollider) go.AddComponent<TilemapCollider2D>();
-        return tm;
+
+        DesplazadorFondoTilemap desp = go.AddComponent<DesplazadorFondoTilemap>();
+        SerializedObject so = new SerializedObject(desp);
+        so.FindProperty("velocidad").floatValue = velocidad;
+        so.FindProperty("alturaBanda").floatValue = alturaBanda;
+        so.ApplyModifiedProperties();
+
+        var rnd = new System.Random(semilla);
+        for (int y = FilaMin; y < FilaMin + alturaBanda; y++)
+        {
+            for (int x = ColMin; x <= ColMax; x++)
+            {
+                if (rnd.NextDouble() < densidad)
+                {
+                    tm.SetTile(new Vector3Int(x, y, 0), tile);
+                    tm.SetTile(new Vector3Int(x, y + alturaBanda, 0), tile); // banda gemela
+                }
+            }
+        }
     }
 
     private static void RegistrarEnBuild()

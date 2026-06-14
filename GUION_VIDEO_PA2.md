@@ -1,391 +1,368 @@
-# 🎬 Guion del Video — Nebulax (PA2)
+# 🎬 Guion del Video — Nebulax (PA2) — PARA LEER AL PIE DE LA LETRA
 
-> **Cómo usar este guion:** lee el texto **en voz alta** tal como está escrito.
-> Cada punto tiene 4 partes:
-> 1. **Qué pide el punto** (lo dices al empezar).
-> 2. **🗣️ EXPLICACIÓN DEL CÓDIGO** → léelo mientras señalas las líneas en Unity.
-> 3. **🎥 MOSTRAR EN JUEGO** → lo que haces en pantalla.
-> 4. **✔️ Rúbrica** → cierras confirmando que cumple.
->
-> **Trabajo individual.**
-> **Duración sugerida:** 8 – 12 minutos.
+> **Instrucciones:** lee en voz alta TODO lo que está en letra normal.
+> Lo que está **(entre paréntesis y en cursiva)** son acciones que haces con el
+> mouse/teclado, NO se leen. Trabajo individual.
 
 ---
 
-## 🎙️ INTRO (30 seg)
+## 🎙️ INTRODUCCIÓN
 
-> "Hola profesor. Soy **[tu nombre]** y este es mi proyecto **Nebulax**, un
-> *shoot 'em up* espacial vertical en 2D hecho en **Unity 6** con **URP** e
-> **Input System**.
-> En este video voy a mostrar **primero** el funcionamiento del juego, y
-> **después** voy a explicar, **mostrando y comentando el código**, cómo resolví
-> los **cinco puntos** del PA2."
+Hola profesor, buenas. Soy **[di tu nombre]** y le voy a presentar mi proyecto
+del PA2, un videojuego que se llama **Nebulax**. Es un juego de naves espaciales
+en dos dimensiones, hecho en **Unity 6**, donde controlamos una nave que tiene
+que destruir enemigos, recoger ítems y derrotar a un jefe final.
 
-**🎥 MOSTRAR:** El proyecto abierto en Unity, la Jerarquía y la escena
-`EscenaPrincipal`.
+En este video voy a hacer dos cosas: primero le muestro el juego funcionando, y
+después le explico, mostrando el código, cómo resolví cada uno de los cinco
+puntos que se pedían en el trabajo.
 
----
-
-# 🕹️ PRIMERA PARTE: Funcionamiento del juego
-
-*(Narra mientras juegas — 2 a 3 minutos)*
-
-> "Primero les muestro el juego funcionando de principio a fin."
-
-**🎥 MOSTRAR / HACER (dale Play y narra):**
-
-1. **Menú principal** → **JUGAR**.
-   > "Arranca el menú; al pulsar Jugar comienza la partida con su música de fondo."
-2. **Controles:** Mover **WASD**/flechas · Disparo **Espacio** · Doble disparo
-   **N** · Misil **Ctrl izquierdo**.
-3. **Enemigos** Tipo I (rectos), Tipo II (zigzag) y Tipo III (élite con alerta).
-4. **Recoger ítems** (gemas que caen) y power-ups de escudo/misiles.
-5. **Subir de nivel** al juntar ítems (nave más rápida, enemigos más difíciles).
-6. **El JEFE final** con barra de vida y fases.
-7. **Derrotar al jefe** → **MISIÓN CUMPLIDA** → **SIGUIENTE NIVEL**.
-8. **Nivel 2:** cartel "NIVEL 2", fondo oscuro de asteroides con parallax,
-   enemigos más agresivos.
-
-> "Ese es el alcance pedido. Ahora explico el código de cada punto."
+*(Muestra la pantalla de Unity con el proyecto abierto.)*
 
 ---
 
-# 🧩 SEGUNDA PARTE: Explicación de los 5 puntos (con código)
+## 🕹️ PARTE 1: FUNCIONAMIENTO DEL JUEGO
+
+Empecemos viendo el juego en acción. Le doy a Play.
+
+*(Pulsa el botón Play de Unity.)*
+
+Lo primero que aparece es el menú principal. Voy a pulsar el botón Jugar para
+comenzar la partida, y como puede escuchar, ya empieza a sonar la música de fondo.
+
+*(Pulsa JUGAR.)*
+
+La nave se controla con las teclas W, A, S, D, o con las flechas, para moverme.
+Disparo con la barra espaciadora, y también tengo un misil que lanzo con la tecla
+Control izquierdo.
+
+*(Muévete y dispara mientras lo dices.)*
+
+Como ve, van apareciendo enemigos. Estos primeros bajan en línea recta. Más
+adelante aparecen otros que se mueven en zigzag, y unos enemigos de élite que
+vienen en pareja y activan una alerta en pantalla.
+
+*(Deja que aparezcan enemigos y dispárales.)*
+
+Mientras juego, van cayendo unos ítems coleccionables, que son estas gemas. Las
+recojo pasando la nave por encima. También aparecen power-ups especiales, como el
+escudo y el enjambre de misiles.
+
+*(Recoge algunos ítems.)*
+
+Cada cierta cantidad de ítems que recojo, mi nave sube de nivel: se vuelve más
+rápida y dispara más seguido, pero al mismo tiempo los enemigos también se ponen
+más difíciles.
+
+Después de un rato aparece el enemigo jefe, que es mucho más grande, tiene una
+barra de vida arriba y ataca por fases.
+
+*(Si llegas al jefe, muéstralo; si no, explícalo igual.)*
+
+Cuando derroto al jefe, aparece la pantalla de "Misión Cumplida" con un botón que
+dice "Siguiente Nivel", y al pulsarlo paso al Nivel 2.
+
+*(Pulsa Siguiente Nivel.)*
+
+Este es el Nivel 2. Como ve, sale el cartel que dice "Nivel 2", el fondo es un
+campo de asteroides más oscuro, para dar la sensación de que nos estamos metiendo
+más profundo en el espacio, y el fondo se mueve por capas. Además aquí los
+enemigos son más agresivos.
+
+Bien, ese es el funcionamiento general del juego. Ahora le explico el código de
+cada uno de los cinco puntos.
 
 ---
 
-## ✅ PUNTO 1 — Animaciones de enemigos + Audios por evento
+## ✅ PUNTO 1: ANIMACIONES DE ENEMIGOS CON AUDIO POR EVENTOS
 
-> "El **punto 1** pide animaciones en los enemigos que **cambien según eventos**
-> y estén **asociadas a audios**. Lo resolví con un patrón de **eventos**: el
-> enemigo *avisa* lo que le pasa, y la animación y el audio *reaccionan*."
+El primer punto pedía que los enemigos tengan animaciones que cambien según lo
+que les pasa, y que esas animaciones estén acompañadas de audios, tanto la música
+de fondo como sonidos de disparo y de colisión.
 
-### 🗣️ EXPLICACIÓN DEL CÓDIGO
+Para resolver esto usé un sistema de eventos. Se lo explico en el código.
 
-**📄 Archivo 1: `Assets/_Nebulax/Scripts/Enemigos/EnemigoBase.cs`**
+*(Abre el script EnemigoBase.cs.)*
 
-> "Empiezo por el enemigo base. Aquí declaro **tres eventos**: uno para cuando
-> dispara, otro para cuando recibe daño y otro para cuando muere."
+Para empezar, nos ubicamos en el script **EnemigoBase**, que está en la ruta
+**Assets, _Nebulax, Scripts, Enemigos, EnemigoBase punto cs**. Este es el script
+base del que heredan todos los enemigos.
 
-```csharp
-public event System.Action AlDisparar;     // línea 48
-public event System.Action AlRecibirDaño;  // línea 49
-public event System.Action AlMorir;        // línea 50
-```
+Aquí, en estas líneas, declaré tres eventos: uno que se llama "Al Disparar", otro
+"Al Recibir Daño" y otro "Al Morir".
 
-> "Un **evento** es como un aviso: el enemigo no sabe quién lo escucha, solo lo
-> lanza. Eso mantiene el código desacoplado y ordenado.
-> Cuando el enemigo dispara, hago dos cosas a la vez: **lanzo el evento** para
-> que la animación reaccione, y **reproduzco el sonido** de disparo."
+*(Señala las líneas 48 a 50.)*
 
-```csharp
-AlDisparar?.Invoke();                                  // línea 214
-GestorAudio.Instancia.ReproducirDisparoEnemigo();      // línea 219
-```
+Un evento, para explicarlo sencillo, es como un aviso que lanza el enemigo cuando
+le pasa algo, sin que tenga que saber quién lo está escuchando. Esto me permite
+separar la lógica del enemigo de su animación, y mantener el código ordenado.
 
-> "Y cuando recibe daño, igual: lanzo el evento de daño y suena el impacto."
+Por ejemplo, aquí, cuando el enemigo dispara, hago dos cosas al mismo tiempo:
+lanzo el evento "Al Disparar", para que la animación reaccione, y enseguida
+reproduzco el sonido del disparo enemigo llamando al gestor de audio.
 
-```csharp
-AlRecibirDaño?.Invoke();                               // línea 172
-GestorAudio.Instancia.ReproducirImpactoEnemigo();      // línea 175
-```
+*(Señala las líneas 214 y 219.)*
 
-**📄 Archivo 2: `Assets/_Nebulax/Scripts/Enemigos/AnimadorEnemigo.cs`**
+Y de la misma forma, cuando el enemigo recibe daño, lanzo el evento "Al Recibir
+Daño" y reproduzco el sonido del impacto.
 
-> "Este componente es el que **escucha** esos eventos. En el `Start` me
-> **suscribo** a los tres: le digo a cada evento qué método debe ejecutar."
+*(Señala las líneas 172 y 175.)*
 
-```csharp
-enemigo.AlDisparar     += AnimarDisparo;   // línea 58
-enemigo.AlRecibirDaño  += AnimarDaño;      // línea 59
-enemigo.AlMorir        += AnimarMuerte;    // línea 60
-```
+*(Ahora abre el script AnimadorEnemigo.cs.)*
 
-> "Así, **cada evento dispara una animación distinta**. Por ejemplo, al recibir
-> daño activo un destello de color rojo durante una fracción de segundo:"
+Ahora vamos al script que se encarga de la animación. Nos ubicamos en el script
+**AnimadorEnemigo**, que está en la ruta **Assets, _Nebulax, Scripts, Enemigos,
+AnimadorEnemigo punto cs**.
 
-```csharp
-private void AnimarDaño()                  // línea 99
-{
-    flashRestante = duracionFlashDaño;     // cuánto dura el flash
-    colorFlashActual = colorFlashDaño;     // color rojo de daño
-}
-```
+Aquí, en el método Start, este componente se suscribe a los tres eventos del
+enemigo. Es decir, le digo: cuando dispares, ejecuta "Animar Disparo"; cuando
+recibas daño, ejecuta "Animar Daño"; y cuando mueras, ejecuta "Animar Muerte".
 
-> "Y en el `Update`, mientras el flash esté activo, voy mezclando el color del
-> sprite con `Color.Lerp` para que el destello se desvanezca suave; además aplico
-> una respiración sutil de escala para que el enemigo no se vea estático."
+*(Señala las líneas 58 a 60.)*
 
-```csharp
-sr.color = Color.Lerp(colorBase, colorFlashActual, t); // línea 89
-```
+Entonces cada evento dispara una animación distinta. Por ejemplo, en el método
+"Animar Daño" activo un destello de color rojo en el enemigo durante una fracción
+de segundo, para que se note visualmente que lo golpeé.
 
-**📄 Archivo 3: `Assets/_Nebulax/Scripts/Gestores/GestorAudio.cs`**
+*(Señala el método AnimarDaño, línea 99.)*
 
-> "Todos los sonidos están centralizados aquí: `IniciarMusica()` para la música
-> de fondo, y métodos como `ReproducirDisparoEnemigo()` o
-> `ReproducirImpactoEnemigo()` para los audios de cada evento."
+Y aquí en el Update, mientras ese destello está activo, voy mezclando el color
+del enemigo poco a poco con la función Color punto Lerp, para que el flash se
+desvanezca de forma suave y no de golpe.
 
-### 🎥 MOSTRAR EN JUEGO
-Acércate a un enemigo, dispárale y muéstralo **parpadeando al recibir daño**
-mientras se escucha el impacto, con la música de fondo sonando.
+*(Señala la línea 89.)*
 
-> **✔️ Rúbrica (Sobresaliente):** "Animaciones que cambian con los eventos
-> **asociadas además a audios**." — La animación reacciona al evento y cada
-> evento dispara su sonido, más la música de fondo.
+*(Abre el script GestorAudio.cs.)*
+
+Y por último, todos los sonidos están centralizados en un solo script. Nos
+ubicamos en el **GestorAudio**, que está en la ruta **Assets, _Nebulax, Scripts,
+Gestores, GestorAudio punto cs**. Aquí está el método "Iniciar Música" para la
+música de fondo, y métodos como "Reproducir Disparo Enemigo" o "Reproducir
+Impacto Enemigo" para los sonidos de cada evento.
+
+*(Vuelve al juego y dispara a un enemigo.)*
+
+Como ve en el juego, cuando le disparo a un enemigo, parpadea al recibir el daño
+y suena el impacto, todo mientras la música de fondo sigue sonando. Con esto el
+punto uno queda cumplido: las animaciones cambian según los eventos y están
+acompañadas de audio.
 
 ---
 
-## ✅ PUNTO 2 — Recolección de ítems con Prefabs reflejada en Debug.Log
+## ✅ PUNTO 2: RECOLECCIÓN DE ÍTEMS CON PREFABS Y DEBUG.LOG
 
-> "El **punto 2** pide recolectar ítems hechos con **Prefabs** y que cada
-> recolección se **registre en el Debug.Log del GameManager**."
+El segundo punto pedía que se puedan recolectar ítems hechos con Prefabs, y que
+cada recolección se registre en el Debug punto Log del GameManager.
 
-### 🗣️ EXPLICACIÓN DEL CÓDIGO
+*(Abre el script GeneradorItems.cs.)*
 
-**📄 Archivo 1: `Assets/_Nebulax/Scripts/Poderes/GeneradorItems.cs`**
+Para esto, primero nos ubicamos en el script **GeneradorItems**, que está en la
+ruta **Assets, _Nebulax, Scripts, Poderes, GeneradorItems punto cs**.
 
-> "Aquí tengo un arreglo de **Prefabs** de coleccionables. El generador los va
-> creando y soltando por la parte superior cada cierto tiempo."
+Aquí tengo un arreglo de Prefabs de coleccionables. Este generador va creando
+esos Prefabs y soltándolos por la parte de arriba de la pantalla cada cierto
+tiempo, para que el jugador los recoja.
 
-```csharp
-[SerializeField] private GameObject[] prefabsColeccionables; // línea 11
-...
-PoolObjetos.Crear(prefab, PosicionAleatoriaSuperior(), Quaternion.identity); // línea 89
-```
+*(Señala la línea 11 y la línea 89.)*
 
-> "Además, cada cierto número de ítems suelto un **power-up especial** (escudo o
-> enjambre de misiles), que también son Prefabs, para que aparezcan de forma
-> garantizada y no solo al azar."
+Además, cada cierta cantidad de ítems, suelto un power-up especial, que es el
+escudo o el enjambre de misiles. Estos también son Prefabs, y los suelto de forma
+garantizada para que el jugador los vea aparecer.
 
-**📄 Archivo 2: `Assets/_Nebulax/Scripts/Poderes/Coleccionable.cs`**
+*(Abre el script Coleccionable.cs.)*
 
-> "Cada ítem tiene este script. Cuando la nave lo toca (detecto la colisión con
-> el tag *Player*), aviso al GameManager pasándole **qué tipo** de ítem fue."
+Ahora, cada ítem que cae tiene este otro script. Nos ubicamos en el
+**Coleccionable**, que está en la ruta **Assets, _Nebulax, Scripts, Poderes,
+Coleccionable punto cs**.
 
-```csharp
-GestorJuego.Instancia.RegistrarItemRecolectado(tipo);  // línea 123
-```
+Aquí, cuando la nave del jugador toca el ítem, detecto esa colisión y aviso al
+GameManager, pasándole qué tipo de ítem se recogió.
 
-**📄 Archivo 3: `Assets/_Nebulax/Scripts/Gestores/GestorJuego.cs`**
+*(Señala la línea 123.)*
 
-> "Y aquí, en el GameManager, está el **Debug.Log** que pide el punto. Cada vez
-> que recojo un ítem, lo registro en consola con su tipo, el total acumulado y el
-> progreso hacia el siguiente nivel."
+*(Abre el script GestorJuego.cs.)*
 
-```csharp
-Debug.Log("[GameManager] Item recolectado: " + tipo + " (" + itemsRecolectados
-          + ") | progreso al siguiente nivel: " + (itemsRecolectados % meta)
-          + "/" + meta);                              // línea 131
-```
+Y finalmente vamos al GameManager. Nos ubicamos en el script **GestorJuego**, que
+está en la ruta **Assets, _Nebulax, Scripts, Gestores, GestorJuego punto cs**.
 
-> "Fíjese que la etiqueta dice exactamente **[GameManager]**, porque la
-> recolección se centraliza en el gestor del juego, como pide el enunciado."
+Aquí está justamente lo que pide el punto: el Debug punto Log. Cada vez que se
+recoge un ítem, lo registro en la consola mostrando el tipo de ítem, cuántos
+llevo en total, y el progreso hacia el siguiente nivel. Fíjese que el mensaje
+empieza con la etiqueta "GameManager" entre corchetes, porque la recolección se
+controla desde el gestor del juego, tal como se pedía.
 
-### 🎥 MOSTRAR EN JUEGO
-Abre la **Console** de Unity, recoge varios ítems y muestra cómo aparecen en
-tiempo real los mensajes `[GameManager] Item recolectado: ...`.
+*(Señala la línea 131.)*
 
-> **✔️ Rúbrica (Sobresaliente):** "Recolecta coleccionables en una **cantidad
-> necesaria** como parte de la mecánica." — Ítems en Prefabs que caen
-> constantemente y cada recolección queda en el Debug.Log del GameManager.
+*(Vuelve al juego, abre la ventana Console y recoge ítems.)*
+
+Para demostrarlo, abro la ventana de la consola en Unity y recojo varios ítems.
+Como puede ver, cada vez que recojo uno, aparece el mensaje en la consola que
+dice "GameManager, item recolectado", con su tipo y su conteo. Con esto el punto
+dos queda cumplido.
 
 ---
 
-## ✅ PUNTO 3 — 2da escena con Tilesets, Tile Palette, Materiales y texturas
+## ✅ PUNTO 3: SEGUNDA ESCENA CON TILESETS Y TILE PALETTE
 
-> "El **punto 3** pide diseñar la **segunda escena** con **Tilesets** y **Tile
-> Palette** usando **materiales y texturas**, con **más de un Tilemap** que
-> caracterice el nivel."
+El tercer punto pedía diseñar la segunda escena usando Tilesets y Tile Palette,
+con materiales y texturas, y aplicando más de un Tilemap que caracterice el nivel.
 
-### 🗣️ EXPLICACIÓN (mostrando los assets y la escena)
+*(Abre en el Proyecto la carpeta Assets/_Nebulax/Arte/TilesNivel2.)*
 
-**📄 Carpeta: `Assets/_Nebulax/Arte/TilesNivel2/`**
+Para esto, nos ubicamos en la carpeta **Assets, _Nebulax, Arte, TilesNivel2**.
+Aquí está todo lo que armé para el nivel dos.
 
-> "Aquí está el **Tileset**: tres *Tiles* —roca de asteroide, hielo cósmico y
-> cristal de energía— cada uno con su **textura** espacial propia. Tienen un
-> **Material** común, `MaterialAsteroides`, y una **Tile Palette**,
-> `PaletaAsteroides`, que es la paleta con la que se pintan los tiles."
+Primero, el Tileset: son estos tres Tiles, uno de roca de asteroide, otro de
+hielo cósmico y otro de cristal de energía. Cada uno usa su propia textura
+espacial, que están en la carpeta Texturas.
 
-- `TileRocaAsteroide.asset`, `TileHieloCosmico.asset`, `TileCristalEnergia.asset` → **Tileset**
-- `MaterialAsteroides.mat` → **Material**
-- `PaletaAsteroides.prefab` → **Tile Palette**
-- `Texturas/` → los PNG de **texturas**
+*(Señala los tres .asset y la carpeta Texturas.)*
 
-**📄 Escena: `Assets/_Nebulax/Escenas/EscenaNivel2.unity`**
+También creé un Material, que se llama "Material Asteroides", y una Tile Palette,
+que se llama "Paleta Asteroides", que es la paleta con la que se pintan los tiles
+en la escena.
 
-> "En la escena del Nivel 2, dentro de **GridNivel2**, uso **tres Tilemaps**, no
-> uno solo. Y aquí está lo interesante: cada Tilemap está a **distinta
-> profundidad** para crear un efecto **parallax**."
+*(Señala MaterialAsteroides.mat y PaletaAsteroides.prefab.)*
 
-- `Tilemap_Lejano_Cristales` → fondo lejano (lento, pequeño, oscuro)
-- `Tilemap_Medio_Hielo` → capa media
-- `Tilemap_Cercano_Asteroides` → primer plano (rápido, grande, brillante)
+*(Abre la escena EscenaNivel2 y despliega GridNivel2 en la Jerarquía.)*
 
-> "Cada capa se mueve a velocidad distinta con el script
-> `DesplazadorFondoTilemap`, así las cercanas pasan rápido y las lejanas despacio,
-> dando sensación de profundidad. Además apliqué un velo oscuro
-> (`AtmosferaNivel`) para que se sienta que la nave entra en lo más profundo del
-> espacio, diferenciándolo del Nivel 1."
+Ahora abro la segunda escena, que está en **Assets, _Nebulax, Escenas,
+EscenaNivel2**. Aquí, dentro del objeto "Grid Nivel 2", puede ver que no usé un
+solo Tilemap, sino tres: el Tilemap lejano de cristales, el Tilemap medio de
+hielo, y el Tilemap cercano de asteroides.
 
-### 🎥 MOSTRAR EN JUEGO
-Entra al Nivel 2 y muestra el campo de asteroides desplazándose **por capas a
-distinta velocidad** y más oscuro que el Nivel 1. (Opcional: abre **Window → 2D →
-Tile Palette** para enseñar la paleta.)
+Lo interesante es que cada Tilemap está a una profundidad distinta, para crear un
+efecto de parallax. La capa lejana se mueve lento, es más pequeña y más oscura, y
+la capa cercana se mueve más rápido y se ve más grande. Esto da sensación de
+profundidad, como si de verdad estuviéramos avanzando por el espacio.
 
-> **✔️ Rúbrica (Sobresaliente):** "Se ha aplicado **más de un TileMaps** que
-> identifica y caracteriza el nivel." — Tres Tilemaps con Tileset, Tile Palette,
-> Material y texturas propias, más parallax y atmósfera.
+Además le agregué un velo oscuro encima de todo el fondo, para que el nivel dos
+se vea más profundo y oscuro que el nivel uno, y así se diferencien claramente.
+
+*(Entra al Nivel 2 en el juego y muestra el fondo moviéndose.)*
+
+Como ve en el juego, el fondo de asteroides se mueve por capas a distintas
+velocidades y es más oscuro. Con esto el punto tres queda cumplido: tengo más de
+un Tilemap, con su Tileset, su Tile Palette, su material y sus texturas.
 
 ---
 
-## ✅ PUNTO 4 — Incremento de habilidades (ítems) y niveles (velocidad)
+## ✅ PUNTO 4: INCREMENTO DE HABILIDADES Y DE NIVELES
 
-> "El **punto 4** pide reglas que **aumenten habilidades** al recoger ítems y
-> suban de **nivel y dificultad**. Lo centralicé en un gestor de progresión."
+El cuarto punto pedía que el juego tenga reglas para aumentar las habilidades al
+recoger ítems, y para subir de nivel y dificultad.
 
-### 🗣️ EXPLICACIÓN DEL CÓDIGO
+*(Abre el script GestorProgresion.cs.)*
 
-**📄 Archivo: `Assets/_Nebulax/Scripts/Gestores/GestorProgresion.cs`**
+Esto lo resolví en un solo script. Nos ubicamos en el **GestorProgresion**, que
+está en la ruta **Assets, _Nebulax, Scripts, Gestores, GestorProgresion punto
+cs**.
 
-> "La regla es simple: cada **5 ítems** subo un nivel. Eso lo defino aquí."
+La regla principal es esta: cada cinco ítems recogidos, subo un nivel. Eso lo
+defino aquí, en la variable "items por nivel".
 
-```csharp
-[SerializeField] private int itemsPorNivel = 5;   // línea 19
-```
+*(Señala la línea 19.)*
 
-> "Cuando recojo un ítem, llamo a `EvaluarProgresion`, que calcula el nivel que
-> me corresponde según el total de ítems y, si subí, aplica las mejoras."
+Cada vez que recojo un ítem, se llama a este método, "Evaluar Progresión", que
+calcula qué nivel me corresponde según la cantidad de ítems que llevo, y si subí
+de nivel, aplica las mejoras.
 
-```csharp
-public void EvaluarProgresion(int totalItems)     // línea 64
-{
-    int nivelObjetivo = Mathf.Clamp(1 + (totalItems / itemsPorNivel), 1, nivelMaximo);
-    while (nivelActual < nivelObjetivo)
-    {
-        nivelActual++;
-        AplicarMejorasDeNivel();
-    }
-}
-```
+*(Señala el método EvaluarProgresion, línea 64.)*
 
-> "Y en `AplicarMejorasDeNivel` está lo importante. Por un lado mejoro las
-> **habilidades del jugador**: subo la **velocidad** de la nave y mejoro la
-> **cadencia** de disparo."
+Y aquí, en el método "Aplicar Mejoras De Nivel", está lo importante. Por un lado
+mejoro las habilidades del jugador: aumento la velocidad de la nave, y mejoro la
+cadencia de disparo para que dispare más rápido.
 
-```csharp
-nave.AumentarVelocidad(factorVelocidadNave);   // habilidad: velocidad (línea 83)
-disparo.MejorarCadencia(factorCadenciaDisparo);// habilidad: disparo (línea 95)
-```
+*(Señala las líneas 83 y 95.)*
 
-> "Y por otro lado subo la **dificultad**: hago que los enemigos aparezcan más
-> rápido y más seguido."
+Y por otro lado, aumento la dificultad: hago que los enemigos aparezcan más
+rápido y con más frecuencia.
 
-```csharp
-generador.AumentarDificultad(factorDificultadEnemigos); // dificultad (línea 102)
-```
+*(Señala la línea 102.)*
 
-> "Así, recoger ítems no es solo un número: realmente **mejora al jugador y
-> endurece el juego** a la vez."
+Entonces recoger ítems no es solo juntar puntos: realmente mejora a mi nave y a
+la vez hace el juego más difícil.
 
-### 🎥 MOSTRAR EN JUEGO
-Recoge 5 ítems y muestra en la Consola el mensaje `[Progresion] ¡Nivel ...!`, y
-cómo la nave se mueve y dispara notablemente más rápido.
+*(Vuelve al juego, recoge 5 ítems y muestra la consola.)*
 
-> **✔️ Rúbrica (Sobresaliente):** "Considera **incremento de dificultad y
-> habilidades**." — Ítems suben nivel → más velocidad y cadencia (habilidades) y
-> enemigos más difíciles (dificultad).
+Como ve, cuando recojo cinco ítems, sale en la consola el mensaje de que subí de
+nivel, y la nave empieza a moverse y a disparar más rápido. Con esto el punto
+cuatro queda cumplido.
 
 ---
 
-## ✅ PUNTO 5 — Enemigo Jefe animado
+## ✅ PUNTO 5: ENEMIGO JEFE ANIMADO
 
-> "El **punto 5** pide **animar un enemigo JEFE adecuadamente**. Mi jefe hereda
-> del enemigo base —así reusa la animación y el audio por eventos del punto 1— y
-> además tiene animación propia con **fases**."
+El quinto y último punto pedía animar a un enemigo jefe de forma adecuada.
 
-### 🗣️ EXPLICACIÓN DEL CÓDIGO
+*(Abre el script EnemigoJefe.cs.)*
 
-**📄 Archivo: `Assets/_Nebulax/Scripts/Enemigos/EnemigoJefe.cs`**
+Para esto, nos ubicamos en el script **EnemigoJefe**, que está en la ruta
+**Assets, _Nebulax, Scripts, Enemigos, EnemigoJefe punto cs**.
 
-> "Lo primero: la clase **hereda de `EnemigoBase`**, por eso el jefe ya reacciona
-> a eventos con animación y sonido, igual que los demás enemigos."
+Lo primero importante es que esta clase hereda del enemigo base. Eso significa
+que el jefe ya reacciona a los eventos con animación y sonido, igual que los
+enemigos normales que expliqué en el punto uno.
 
-```csharp
-public class EnemigoJefe : EnemigoBase   // línea 17
-```
+*(Señala la línea 17, "class EnemigoJefe : EnemigoBase".)*
 
-> "Su movimiento es animado por código. Primero **entra** descendiendo desde
-> fuera de la pantalla hasta su altura de combate:"
+Pero además tiene su propia animación. Primero, el jefe entra a la pantalla
+descendiendo desde arriba hasta su posición de combate.
 
-```csharp
-transform.Translate(Vector3.down * velocidadEntrada * Time.deltaTime, Space.World); // línea 96
-```
+*(Señala la línea 96.)*
 
-> "Y una vez en posición, hace un **vaivén** horizontal y una **flotación**
-> vertical permanentes, usando funciones seno para un movimiento suave y orgánico."
+Y una vez que llega a su posición, se mueve con un vaivén horizontal y una
+flotación vertical, usando funciones seno, para que el movimiento se vea suave y
+natural, no rígido.
 
-```csharp
-float x = centroX + Mathf.Sin(tiempoVaiven) * amplitudVaiven;        // vaivén (línea 109)
-float y = alturaObjetivo + Mathf.Sin(tiempoFlotacion) * amplitudFlotacion; // flotación (línea 110)
-```
+*(Señala las líneas 109 y 110.)*
 
-> "Lo más interesante son las **fases**. En `ActualizarFase` compruebo el
-> porcentaje de vida del jefe: cuando baja de ciertos umbrales, cambia de fase."
+Lo más interesante son las fases. Aquí, en el método "Actualizar Fase", reviso el
+porcentaje de vida del jefe, y cuando su vida baja de ciertos límites, cambia de
+fase.
 
-```csharp
-if (PorcentajeVida <= umbralFase3) nuevaFase = 3;       // línea 125
-else if (PorcentajeVida <= umbralFase2) nuevaFase = 2;  // línea 129
-```
+*(Señala las líneas 125 y 129.)*
 
-> "Y cada fase **cambia su patrón de disparo**: en la fase 1 dispara recto, pero
-> en fases avanzadas dispara en **abanico** con más proyectiles."
+Y cada fase cambia su forma de disparar. En la primera fase dispara un solo
+proyectil recto, pero en las fases más avanzadas dispara en abanico, con varios
+proyectiles a la vez, así que se vuelve más peligroso a medida que pierde vida.
 
-```csharp
-switch (faseActual)                       // línea 158
-{
-    case 1: DispararAbanico(origen, 1, 0f); break;
-    case 2: DispararAbanico(origen, 3, 12f); break;
-    default: DispararAbanico(origen, 5, 14f); break;
-}
-```
+*(Señala el switch de fases, línea 158.)*
 
-> "Además muestro una **barra de vida** del jefe en pantalla, y al derrotarlo
-> aviso la victoria al GameManager."
+También le puse una barra de vida que se muestra en pantalla mientras peleamos
+contra él, y cuando lo derroto, avisa al GameManager que gané.
 
-```csharp
-BarraVidaJefe.Mostrar(this, "DEVASTADOR · ENEMIGO JEFE"); // línea 67
-GestorJuego.Instancia.RegistrarVictoria(transform.position); // (NotificarVictoria)
-```
+*(Señala la línea 67.)*
 
-### 🎥 MOSTRAR EN JUEGO
-Pelea contra el jefe: muéstralo **entrando**, su **vaivén/flotación**, la **barra
-de vida** bajando y cómo **cambia el patrón de disparo** al perder vida.
+*(Vuelve al juego y pelea contra el jefe.)*
 
-> **✔️ Rúbrica (Sobresaliente):** "Anima a un enemigo jefe **adecuadamente**." —
-> Entrada, vaivén, flotación, fases con distinto patrón de disparo, barra de vida
-> y animación por eventos heredada.
+Como ve en el juego, el jefe entra, se mueve con su vaivén y flotación, tiene su
+barra de vida arriba, y cuando le bajo la vida, cambia su patrón de disparo. Con
+esto el punto cinco queda cumplido.
 
 ---
 
-## 🎙️ CIERRE (20 seg)
+## 🎙️ CIERRE
 
-> "En resumen, Nebulax cumple los cinco puntos del PA2: animaciones de enemigos
-> con audio por evento, recolección de ítems con Prefabs reflejada en el
-> Debug.Log del GameManager, una segunda escena con Tilesets, Tile Palette,
-> material y varios Tilemaps con parallax, un sistema de progresión que aumenta
-> habilidades y dificultad, y un enemigo jefe animado con fases.
-> Gracias por su atención, profesor."
+Y eso sería todo, profesor. En resumen, mi proyecto Nebulax cumple los cinco
+puntos del PA2: las animaciones de los enemigos cambian según los eventos y van
+acompañadas de audio; los ítems son Prefabs que se recolectan y se registran en
+el Debug punto Log del GameManager; la segunda escena usa Tilesets, Tile Palette,
+material y varios Tilemaps con efecto de profundidad; el juego tiene un sistema
+que aumenta las habilidades de la nave y la dificultad; y tengo un enemigo jefe
+animado con fases de combate.
 
-**🎥 MOSTRAR:** Pantalla de Misión Cumplida o el título del juego.
+Muchas gracias por su atención.
+
+*(Muestra la pantalla de Misión Cumplida o el título del juego para cerrar.)*
 
 ---
 
-## 📋 Checklist antes de grabar
+## 📋 Checklist antes de grabar (NO se lee, es para ti)
 
-- [ ] Unity abierto con la **Consola** visible (para los Debug.Log de los puntos 2 y 4).
-- [ ] Probar una partida completa antes (llegar al jefe y al Nivel 2).
-- [ ] Tener abiertos en pestañas los `.cs` que vas a explicar, para saltar rápido.
-- [ ] Activar números de línea en el editor de código (para señalar las líneas).
-- [ ] Audio del PC encendido (para que se escuchen música y SFX del punto 1).
-- [ ] Grabar pantalla + voz; hablar claro, sin prisa, y **señalar el código** que mencionas.
+- [ ] Unity abierto con la ventana **Console** visible (para los puntos 2 y 4).
+- [ ] Jugar una partida completa antes, para llegar al jefe y al Nivel 2.
+- [ ] Abrir por adelantado, en pestañas, los scripts que vas a mostrar.
+- [ ] Activar los números de línea en tu editor de código.
+- [ ] Subir el volumen del PC (para que se escuche música y efectos).
+- [ ] Grabar pantalla + micrófono, y leer este guion con calma.
